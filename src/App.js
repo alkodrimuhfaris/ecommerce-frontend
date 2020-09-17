@@ -29,6 +29,8 @@ import {
   DropdownItem,
   NavbarText
 } from 'reactstrap';
+import qs from 'querystring';
+import Pagination from "react-js-pagination";
 
 class Series extends React.Component{
   constructor(props){
@@ -58,27 +60,51 @@ class Series extends React.Component{
       value: '',
       url: '',
       message: '',
-      count: 0,
-      pages: 0,
-      limitPerPage: 0,
-      currentPage: 0,
-      nextLink: '',
-      prefLink: ''
+      pageInfo: {
+        count: 10,
+        pages: 1,
+        limitPerPage: 5,
+        currentPage: 1,
+        nextLink: '',
+        prefLink: '',
+        jumpPage: 1
+      },
+      popUpMsg: '',
+      searchKey: 'name',
+      sortKey: 'id',
+      searchValue: '',
+      sortValue: 0
     }
+    this.handleUpdate = this.handleUpdate.bind(this)
+    this.updateItem = this.updateItem.bind(this)
+    this.handleAdd = this.handleAdd.bind(this)
+    this.addItem = this.addItem.bind(this)
   }
 
 
   async componentDidMount(){
-    const dataGet = await axios.get('http://localhost:8080/items/')
+    await this.getData()
+  }
+
+  getData = async () => {
+    const queryPage = {
+      page: this.state.pageInfo.currentPage,
+      limit: this.state.pageInfo.limitPerPage,
+      search: { name : this.state.searchValue },
+      sort: { id : this.state.sortValue }
+    }
+    const dataGet = await axios.get(`http://localhost:8080/items/?${qs.stringify({...queryPage})}`)
     const { pageInfo, data } = dataGet.data
     this.setState({
-      data: data,
-      count: pageInfo.count,
-      pages: pageInfo.pages,
-      limitPerPage: pageInfo.dataPerPage,
-      currentPage: pageInfo.curentPage,
-      nextLink: pageInfo.nextLink,
-      prefLink: pageInfo.prefLink,
+      data,
+      pageInfo: {
+        count: pageInfo.count,
+        pages: pageInfo.pages,
+        limitPerPage: pageInfo.dataPerPage,
+        currentPage: pageInfo.curentPage,
+        nextLink: pageInfo.nextLink,
+        prefLink: pageInfo.prefLink
+      },
       message:
         <div>
           <div className="d-flex align-items-center justify-content-center">
@@ -116,8 +142,16 @@ class Series extends React.Component{
   }
 
   openModalUpdate = (dataItem) => {
-    
-    this.setState({modalOpenUpdate: true})
+    this.setState({
+      modalOpenUpdate: true,
+      formUpdate: {
+        name: this.state.dataItem.name,
+        price: this.state.dataItem.price,
+        description: this.state.dataItem.description,
+        category_id: this.state.dataItem.category_id
+      },
+      url: `http://localhost:8080/items/${this.state.dataItem.id}`
+    })
   }
 
   closeModalUpdate = () => {
@@ -152,37 +186,107 @@ class Series extends React.Component{
   // DELETE
   deleteItem = async (url) => {
     const del = await axios.delete(url)
-    let dataGet = await axios.get('http://localhost:8080/items/')
-    const { pageInfo, data } = dataGet.data
+    await this.getData()
     const message = del.data.message
     this.setState({
-      data: data,
-      count: pageInfo.count,
-      pages: pageInfo.pages,
-      limitPerPage: pageInfo.dataPerPage,
-      currentPage: pageInfo.curentPage,
-      nextLink: pageInfo.nextLink,
-      prefLink: pageInfo.prefLink,
       message: 
         <div>
           <div className="d-flex align-items-center justify-content-center">
             <span className='text-center'>{message}</span>
           </div>
-        </div>,
-      data
+        </div>
     })
   }
 
+  updateItem = (event) => {
+    let key = event.target.name
+    let val = event.target.value
+    this.setState({
+      formUpdate: {
+        [key]: val
+      }
+    })
+  }
+
+  handleUpdate = async (event) => {
+    console.log(this.state.url)
+    event.preventDefault()
+    let dataUpdate = {}
+    if (Object.keys(this.state.formUpdate).length === Object.values(this.state.formUpdate).length){
+      dataUpdate = await axios.put(this.state.url, qs.stringify({...this.state.formUpdate}))
+    } else {
+      dataUpdate = await axios.patch(this.state.url, qs.stringify({...this.state.formUpdate}))
+    }
+    const { message, success } = dataUpdate.data
+
+    if (!success) {
+      window.alert(message)
+    }
+    
+    this.setState({
+      popUpMsg: message
+    }, async () => { 
+      await this.getData() 
+      window.confirm(this.state.popUpMsg)
+    })
+    if(success) {
+      this.closeModalUpdate()
+      this.closeModalDetail()
+    }
+  }
  
+  addItem = (event) => {
+    let key = event.target.name
+    let val = event.target.value
+    this.setState({
+      formAdd: {
+        [key]: val
+      }
+    })
+  }
+
+  handleAdd = async (event) => {
+    event.preventDefault()
+    const dataUpdate = await axios.post('http://localhost:8080/items/', qs.stringify({...this.state.formAdd}))
+    const { message, success } = dataUpdate.data
+    console.log(message)
+
+    if(!success){ 
+      window.confirm(message)
+    }
+
+    this.setState({
+      popUpMsg: message
+    }, async () => { 
+      await this.getData() 
+      window.confirm(this.state.popUpMsg)
+    })
+    if(success) {
+      this.closeModalNew()
+    }
+  }
+
+  //page handling
+  handlePageClick = (e) => {
+    const selectedPage = e;
+    // const offset = selectedPage * this.state.pageInfo.limitPerPage;
+
+    this.setState({
+        pageInfo: { jumpPage : selectedPage }
+    }, async () => {
+        await this.getData()
+    });
+  };
   
   render(){
     console.log('render parent')
-    const { data, dataItem, formUpdate, formAdd } = this.state
+    const { data, dataItem, formUpdate, formAdd, pageInfo } = this.state
     console.log(data.message)
     console.log('ini form update :'+formUpdate)
     console.log('ini form create :'+formAdd)
     console.log(dataItem.id)
     console.log(this.state.url)
+    console.log(pageInfo)
     return(
       <React.Fragment>
         <Navbar className='bg-success text-white' dark expand="md">
@@ -240,6 +344,18 @@ class Series extends React.Component{
           </div>
 
         </Container>
+        
+        <div className='my-3 d-flex align-items-center justify-content-center'>
+          <Pagination
+            activePage={pageInfo.currentPage}
+            itemsCountPerPage={pageInfo.limitPerPage}
+            totalItemsCount={pageInfo.count}
+            onChange={this.handlePageClick}
+            itemClass="page-item"
+            linkClass="page-link"
+          />
+        </div>
+
         <div className='mt-3 bg-success text-white py-5'>
           <Container color='light' light expand="md">
             <Row>
@@ -248,7 +364,7 @@ class Series extends React.Component{
           </Container>
         </div>
 
-        {/* modal for display */}
+        {/* modal for read */}
         <Modal isOpen={this.state.modalOpenDetail}>
           <ModalHeader>Details</ModalHeader>
           <ModalBody>
@@ -291,25 +407,25 @@ class Series extends React.Component{
         <Modal isOpen={this.state.modalOpenUpdate}>
           <ModalHeader>Update Item</ModalHeader>
             <ModalBody>
-              <Form>
+              <Form onSubmit={this.handleUpdate}>
                 <FormGroup>
                   <Label for="name">Item's name</Label>
-                  <Input type="name" name="name" id="name" value={this.state.formUpdate.name}/>
+                  <Input type="name" name="name" id="name" value={this.state.formUpdate.name} onChange={this.updateItem}/>
                 </FormGroup>
                 <FormGroup>
                   <Label for="price">Price</Label>
-                  <Input type="number" name="price" id="price" value={this.state.formUpdate.price}/>
+                  <Input type="number" name="price" id="price" value={this.state.formUpdate.price} onChange={this.updateItem}/>
                 </FormGroup>
                 <FormGroup>
                   <Label for="category_id">Category Id</Label>
-                  <Input type="number" name="category_id" id="category_id" value={this.state.formUpdate.name}/>
+                  <Input type="number" name="category_id" id="category_id" value={this.state.formUpdate.category_id} onChange={this.updateItem}/>
                 </FormGroup>
                 <FormGroup>
                   <Label for="description">Description</Label>
-                  <Input type="textarea" name="description" id="description" value={this.state.formUpdate.name}/>
+                  <Input type="textarea" name="description" id="description" value={this.state.formUpdate.description} onChange={this.updateItem}/>
                 </FormGroup>
                 <div className='d-flex justify-content-center'>
-                  <Button color="success" type="submit" onSubmit = { () => this.updateItem(dataItem.id)} className = "rounded-pill">Save</Button>
+                  <Button color="success" type="submit" className = "rounded-pill">Save</Button>
                 </div>
               </Form>
             </ModalBody>
@@ -322,25 +438,25 @@ class Series extends React.Component{
         <Modal isOpen={this.state.modalOpenNew}>
           <ModalHeader>Add New Item</ModalHeader>
             <ModalBody>
-            <Form>
+              <Form onSubmit = {this.handleAdd} >
                 <FormGroup>
                   <Label for="name">Item's name</Label>
-                  <Input type="name" name="name" id="name"/>
+                  <Input type="name" name="name" id="name" value={this.state.formAdd.name} onChange={this.addItem}/>
                 </FormGroup>
                 <FormGroup>
                   <Label for="price">Price</Label>
-                  <Input type="number" name="price" id="price"/>
+                  <Input type="number" name="price" id="price" value={this.state.formAdd.price} onChange={this.addItem}/>
                 </FormGroup>
                 <FormGroup>
                   <Label for="category_id">Category Id</Label>
-                  <Input type="number" name="category_id" id="category_id"/>
+                  <Input type="number" name="category_id" id="category_id" value={this.state.formAdd.category_id} onChange={this.addItem}/>
                 </FormGroup>
                 <FormGroup>
                   <Label for="description">Description</Label>
-                  <Input type="textarea" name="description" id="description"/>
+                  <Input type="textarea" name="description" id="description" value={this.state.formAdd.description} onChange={this.addItem}/>
                 </FormGroup>
                 <div className='d-flex justify-content-center'>
-                  <Button color="success" type="submit" onSubmit = {this.addItem} className = "rounded-pill">Submit</Button>
+                  <Button color="success" type="submit" className = "rounded-pill">Submit</Button>
                 </div>
               </Form>
             </ModalBody>

@@ -11,6 +11,8 @@
     "cors": "^2.8.5",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-js-pagination": "^3.0.3",
+    "react-paginate": "^6.5.0",
     "react-scripts": "3.4.3",
     "reactstrap": "^8.5.1"
   },
