@@ -43,19 +43,42 @@ class Series extends React.Component{
       addNewItem: 'abwabwa',
       openNavbar: false,
       dataItem: {},
+      formUpdate: {
+        name: '',
+        price: 0,
+        category_id: '',
+        description: ''
+      },
+      formAdd: {
+        name: '',
+        price: 0,
+        category_id: '',
+        description: ''
+      },
       value: '',
       url: '',
       message: '',
-      formUpdate: {}
+      count: 0,
+      pages: 0,
+      limitPerPage: 0,
+      currentPage: 0,
+      nextLink: '',
+      prefLink: ''
     }
   }
 
 
   async componentDidMount(){
-    let data = await axios.get('http://localhost:8080/items/')
-    data = data.data
+    const dataGet = await axios.get('http://localhost:8080/items/')
+    const { pageInfo, data } = dataGet.data
     this.setState({
-      data,
+      data: data,
+      count: pageInfo.count,
+      pages: pageInfo.pages,
+      limitPerPage: pageInfo.dataPerPage,
+      currentPage: pageInfo.curentPage,
+      nextLink: pageInfo.nextLink,
+      prefLink: pageInfo.prefLink,
       message:
         <div>
           <div className="d-flex align-items-center justify-content-center">
@@ -69,28 +92,11 @@ class Series extends React.Component{
   }
 
   openModalDetail = async (url) => {
-    const detailItem = await axios.get(url)
-    const dataItem = detailItem.data.choosenData
-    const {
-      id,
-      name,
-      price,
-      category_id,
-      description,
-      created_at,
-      updated_at
-    } = dataItem
+    let dataItem = await axios.get(url)
+    dataItem = dataItem.data.choosenData
     console.log('openModalDetail')
-    console.log(new Date(created_at))
     this.setState({
       modalOpenDetail: true,
-      id: id,
-      name: name,
-      price: price,
-      categoryId: category_id,
-      description: description,
-      createdAt: new Date(created_at),
-      updatedAt: new Date(updated_at),
       dataItem: dataItem,
     })
   }
@@ -110,7 +116,7 @@ class Series extends React.Component{
   }
 
   openModalUpdate = (dataItem) => {
-    console.log(dataItem.id)
+    
     this.setState({modalOpenUpdate: true})
   }
 
@@ -146,10 +152,17 @@ class Series extends React.Component{
   // DELETE
   deleteItem = async (url) => {
     const del = await axios.delete(url)
-    let data = await axios.get('http://localhost:8080/items/')
-    data = data.data
+    let dataGet = await axios.get('http://localhost:8080/items/')
+    const { pageInfo, data } = dataGet.data
     const message = del.data.message
     this.setState({
+      data: data,
+      count: pageInfo.count,
+      pages: pageInfo.pages,
+      limitPerPage: pageInfo.dataPerPage,
+      currentPage: pageInfo.curentPage,
+      nextLink: pageInfo.nextLink,
+      prefLink: pageInfo.prefLink,
       message: 
         <div>
           <div className="d-flex align-items-center justify-content-center">
@@ -160,28 +173,14 @@ class Series extends React.Component{
     })
   }
 
-  updateItem = event => {
-      event.preventDefault();
-      const data = new FormData(event.target);
-      console.log(data)
-
-      this.setState({
-        formUpdate: data
-      })
-
-      // fetch('/api/form-submit-url', {
-      //   method: 'POST',
-      //   body: data,
-      // });
-    }
-  
-
+ 
   
   render(){
     console.log('render parent')
-    const { data, dataItem, formUpdate } = this.state
+    const { data, dataItem, formUpdate, formAdd } = this.state
     console.log(data.message)
     console.log('ini form update :'+formUpdate)
+    console.log('ini form create :'+formAdd)
     console.log(dataItem.id)
     console.log(this.state.url)
     return(
@@ -217,7 +216,7 @@ class Series extends React.Component{
                 <Col className='d-flex align-items-center justify-content-center border px-2 py-3' md='4' xs='3'><span className='text-center'>Action</span></Col>
               </Row>
             </Container>
-            {Object.keys(data).length && data.data.map(item => {
+            {Object.keys(data).length && data.map(item => {
               return(
                 <Container>
                   <Row xs="2">
@@ -239,6 +238,7 @@ class Series extends React.Component{
               )
             })}
           </div>
+
         </Container>
         <div className='mt-3 bg-success text-white py-5'>
           <Container color='light' light expand="md">
@@ -254,31 +254,31 @@ class Series extends React.Component{
           <ModalBody>
             <Row className = 'my-3'>
               <Col xs={3} className='mr-1'>Item ID</Col>
-              <Col xs={8} className='ml-1'>{`${this.state.id}`}</Col>
+              <Col xs={8} className='ml-1'>{`${dataItem.id}`}</Col>
             </Row>
             <Row className = 'my-3'>
               <Col xs={3} className='mr-1'>Item Name</Col>
-              <Col xs={8} className='ml-1'>{`${this.state.name}`}</Col>
+              <Col xs={8} className='ml-1'>{`${dataItem.name}`}</Col>
             </Row>
             <Row className = 'my-3'>
               <Col xs={3} className='mr-1'>Categry ID</Col>
-              <Col xs={8} className='ml-1'>{`${this.state.categoryId}`}</Col>
+              <Col xs={8} className='ml-1'>{`${dataItem.category_id}`}</Col>
             </Row>
             <Row className = 'my-3'>
               <Col xs={3} className='mr-1'>Item Price</Col>
-              <Col xs={8} className='ml-1'>{`${this.state.price}`}</Col>
+              <Col xs={8} className='ml-1'>{`${dataItem.price}`}</Col>
             </Row>
             <Row className = 'my-3'>
               <Col xs={3} className='mr-1'>Item Description</Col>
-              <Col xs={8} className='ml-1'>{`${this.state.description}`}</Col>
+              <Col xs={8} className='ml-1'>{`${dataItem.description}`}</Col>
             </Row>
             <Row className = 'my-3'>
               <Col xs={3} className='mr-1'>Created at</Col>
-              <Col xs={8} className='ml-1'>{`${this.state.createdAt}`}</Col>
+              <Col xs={8} className='ml-1'>{`${new Date (dataItem.created_at)}`}</Col>
             </Row>
             <Row className = 'my-3'>
               <Col xs={3} className='mr-1'>Updated at </Col>
-              <Col xs={8} className='ml-1'>{`${this.state.updatedAt}`}</Col>
+              <Col xs={8} className='ml-1'>{`${new Date (dataItem.updated_at)}`}</Col>
             </Row>
             <Button color="success" onClick={ () => this.openModalUpdate({dataItem})} className = "rounded-pill">Update</Button>
           </ModalBody>
@@ -290,35 +290,29 @@ class Series extends React.Component{
         {/* modal for update */}
         <Modal isOpen={this.state.modalOpenUpdate}>
           <ModalHeader>Update Item</ModalHeader>
-          <ModalBody>
-          <Form>
-              <FormGroup>
-                  <Label for="itemName">Item's name</Label>
-                  <Input type="name" name="itemName" id="itemName"/>
+            <ModalBody>
+              <Form>
+                <FormGroup>
+                  <Label for="name">Item's name</Label>
+                  <Input type="name" name="name" id="name" value={this.state.formUpdate.name}/>
                 </FormGroup>
                 <FormGroup>
-                  <Label for="itemPrice">Price</Label>
-                  <Input type="number" name="itemPrice" id="itemPrice"/>
+                  <Label for="price">Price</Label>
+                  <Input type="number" name="price" id="price" value={this.state.formUpdate.price}/>
                 </FormGroup>
                 <FormGroup>
-                  <Label for="categoryId">Category Id</Label>
-                  <Input type="select" name="categoryId" id="categoryId">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                  </Input>
+                  <Label for="category_id">Category Id</Label>
+                  <Input type="number" name="category_id" id="category_id" value={this.state.formUpdate.name}/>
                 </FormGroup>
                 <FormGroup>
-                  <Label for="itemDescription">Description</Label>
-                  <Input type="textarea" name="itemDescription" id="itemDescription" />
+                  <Label for="description">Description</Label>
+                  <Input type="textarea" name="description" id="description" value={this.state.formUpdate.name}/>
                 </FormGroup>
                 <div className='d-flex justify-content-center'>
-                  <Button color="success" type="submit" onSubmit = {this.updateItem} className = "rounded-pill">Save</Button>
+                  <Button color="success" type="submit" onSubmit = { () => this.updateItem(dataItem.id)} className = "rounded-pill">Save</Button>
                 </div>
               </Form>
-          </ModalBody>
+            </ModalBody>
           <ModalFooter>
             <Button color="danger" onClick={this.closeModalUpdate} className = "rounded-pill">Close</Button>
           </ModalFooter>
@@ -326,9 +320,30 @@ class Series extends React.Component{
         
         {/* modal for post new */}
         <Modal isOpen={this.state.modalOpenNew}>
-          <ModalHeader>Add New</ModalHeader>
-          <ModalBody>
-          </ModalBody>
+          <ModalHeader>Add New Item</ModalHeader>
+            <ModalBody>
+            <Form>
+                <FormGroup>
+                  <Label for="name">Item's name</Label>
+                  <Input type="name" name="name" id="name"/>
+                </FormGroup>
+                <FormGroup>
+                  <Label for="price">Price</Label>
+                  <Input type="number" name="price" id="price"/>
+                </FormGroup>
+                <FormGroup>
+                  <Label for="category_id">Category Id</Label>
+                  <Input type="number" name="category_id" id="category_id"/>
+                </FormGroup>
+                <FormGroup>
+                  <Label for="description">Description</Label>
+                  <Input type="textarea" name="description" id="description"/>
+                </FormGroup>
+                <div className='d-flex justify-content-center'>
+                  <Button color="success" type="submit" onSubmit = {this.addItem} className = "rounded-pill">Submit</Button>
+                </div>
+              </Form>
+            </ModalBody>
           <ModalFooter>
             <Button color="danger" onClick={this.closeModalNew} className = "rounded-pill">Close</Button>
           </ModalFooter>
