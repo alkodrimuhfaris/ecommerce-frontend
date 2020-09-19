@@ -95,7 +95,7 @@ class ModalCreate extends React.Component{
               </Form>
             </ModalBody>
           <ModalFooter>
-            <Button color="danger" onClick={() => this.props.modalCloseNew()} className = "rounded-pill">Close</Button>
+            <Button color="danger" onClick={() => this.props.modalCloseNew('crt')} className = "rounded-pill">Close</Button>
           </ModalFooter>
         </Modal>
       </React.Fragment>

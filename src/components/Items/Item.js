@@ -84,7 +84,7 @@ class AdminItem extends React.Component {
     console.log('openModalDetail')
     this.setState({
       modalOpenDetail: true,
-      dataItem: dataItem,
+      dataItem
     })
   }
 
@@ -108,28 +108,22 @@ class AdminItem extends React.Component {
     })
   }
 
-  closeModalNew = async () => {
+  closeModal = async (n) => {
     await this.getData()
-    this.setState({
-      modalOpenNew: false
-    })
+    if (n==='del'){
+      this.setState({
+        modalOpenDelete: false
+      })
+    } else if (n==='crt'){
+      this.setState({
+        modalOpenCreate: false
+      })
+    } else {
+      this.setState({
+        modalOpenUpdate: false
+      })
+    }
   }
-  
-  closeModalUpdate = async () => {
-    await this.getData()
-    this.setState({
-      modalOpenUpdate: false
-    })
-  }
-
-  closeModalDelete = async (cb) => {
-    await this.getData()
-    this.setState({
-      modalOpenDelete: false
-    })
-    return (cb)
-  }
-
 
   render(){
     console.log('render parent')
@@ -158,8 +152,8 @@ class AdminItem extends React.Component {
         <Footer/>
         <ModalCreate 
           modalOpenNew= {this.state.modalOpenNew}
-          modalCloseNew= {() => this.closeModalNew()}
           categories={allCategories}
+          modalCloseNew= {async n => this.closeModal(n)}
         />
         <ModalDetail
           dataItem={dataItem}
@@ -171,13 +165,14 @@ class AdminItem extends React.Component {
           modalOpenUpdate={this.state.modalOpenUpdate}
           formUpdate={formUpdate}
           id={dataItem.id}
-          modalCloseUpdate={() => this.closeModalUpdate()}
           categories={allCategories}
+          modalDetail= {async id => this.openModalDetail(id)}
+          modalCloseUpdate={async n => this.closeModal(n)}
         />
         <ModalDelete 
           modalOpenDelete= {this.state.modalOpenDelete}
           url= {delUrl}
-          modalCloseDelete= { cb => this.closeModalDelete(cb) }
+          modalCloseDelete= { async n => this.closeModal(n) }
         />
       </React.Fragment>
     )

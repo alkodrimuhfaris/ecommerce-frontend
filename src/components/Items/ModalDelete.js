@@ -19,7 +19,7 @@ class ModalDelete extends React.Component{
             <span className='text-center'>Are you sure want to delete?</span>
           </div>
           <div className='d-flex justify-content-center'>
-            <Button color="danger" onClick={ () => this.deleteItem(this.props.url)} className = "rounded-pill">DELETE</Button>
+            <Button color="danger" onClick={ () => this.deleteItem(this.state.url)} className = "rounded-pill">DELETE</Button>
           </div>
         </div> 
     }
@@ -38,25 +38,27 @@ class ModalDelete extends React.Component{
     })
   }
 
-  closeModalDelete = () => {
-    this.setState({
-      delMessage:
-        <div>
-          <div className="d-flex align-items-center justify-content-center">
-            <span className='text-center'>Are you sure want to delete?</span>
-          </div>
-          <div className='d-flex justify-content-center'>
-            <Button color="danger" onClick={ () => this.deleteItem(this.state.url)} className = "rounded-pill">DELETE</Button>
-          </div>
-        </div>
-    })
-  }
-
   modalDelete = () => {
     this.setState({
       modalOpenDelete: this.props.modalOpenDelete
     })
+  }
 
+  componentDidUpdate(prevProps){
+    if(this.props.modalOpenDelete !== prevProps.modalOpenDelete){
+      this.setState({
+        url: this.props.url,
+        delMessage:
+          <div>
+            <div className="d-flex align-items-center justify-content-center">
+              <span className='text-center'>Are you sure want to delete?</span>
+            </div>
+            <div className='d-flex justify-content-center'>
+              <Button color="danger" onClick={ () => this.deleteItem(this.state.url)} className = "rounded-pill">DELETE</Button>
+            </div>
+          </div>
+      })
+    }
   }
 
   render(){
@@ -69,7 +71,7 @@ class ModalDelete extends React.Component{
             {this.state.delMessage}
           </ModalBody>
           <ModalFooter>
-            <Button color="danger" onClick={ () => this.props.modalCloseDelete(this.closeModalDelete)} className = "rounded-pill">Close</Button>
+            <Button color="danger" onClick={ () => this.props.modalCloseDelete('del')} className = "rounded-pill">Close</Button>
           </ModalFooter>
         </Modal>
       </React.Fragment>
