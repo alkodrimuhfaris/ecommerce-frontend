@@ -59,10 +59,17 @@ class ModalDetail extends React.Component{
                 <Col xs={3} className='mr-1'>Updated at </Col>
                 <Col xs={8} className='ml-1'>{`${new Date (dataItem.updated_at)}`}</Col>
               </Row>
-              <Button color="success" onClick={ () => this.props.openUpdate() } className = "rounded-pill">Update</Button>
+              <Row className='row justify-content-around'>
+                <Col xs={3} className='my-1'>
+                 <Button color="success" onClick={ () => this.props.openUpdate() } className = "rounded-pill">Update</Button>
+                </Col>
+                <Col xs={3} className='my-1'>
+                  <Button onClick ={() => this.props.openDelete(dataItem.id, 1) } color="danger" className = "rounded-pill">Delete</Button>
+                </Col>
+              </Row>
             </ModalBody>
             <ModalFooter>
-              <Button color="danger" onClick={this.props.modalCloseDetail} className = "rounded-pill">Close</Button>
+              <Button color="danger" onClick={() => this.props.modalCloseDetail('dtl')} className = "rounded-pill">Close</Button>
             </ModalFooter>
           </Modal>
       </React.Fragment>

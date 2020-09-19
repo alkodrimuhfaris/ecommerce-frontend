@@ -29,14 +29,14 @@ class ItemTable extends React.Component{
                   <div className='col-md-4 d-flex align-items-center justify-content-center my-1' xs='12'>
                     <Button 
                     
-                    onClick ={() => this.props.openDetail(item.id) }
+                    onClick ={() => this.props.openDetail(item.id, 0) }
                     
                     color="success" className = "rounded-pill" >Detail</Button>
                   </div>
                   <div className='col-md-4 d-flex align-items-center justify-content-center my-1' xs='12'>
                     <Button 
                     
-                    onClick ={() => this.props.openDelete(item.id) }
+                    onClick ={() => this.props.openDelete(item.id, 1) }
                     
                     color="danger" className = "rounded-pill">Delete</Button>
                   </div>
