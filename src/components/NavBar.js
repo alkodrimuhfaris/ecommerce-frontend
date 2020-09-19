@@ -1,42 +1,44 @@
 import React, { Component } from 'react';
+import {
+  Collapse,
+  Container,
+  Navbar,
+  NavbarToggler,
+  NavbarBrand,
+  Nav,
+  NavItem,
+  NavLink,
+} from 'reactstrap'
 
 class NavBar extends Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      openNavbar: false,
+    }
+    
+  }
   render(){
     return(
-      <div>
-      <Navbar color="light" light expand="md">
-        <NavbarBrand href="/">reactstrap</NavbarBrand>
-        <NavbarToggler onClick={toggle} />
-        <Collapse isOpen={isOpen} navbar>
-          <Nav className="mr-auto" navbar>
-            <NavItem>
-              <NavLink href="/components/">Components</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href="https://github.com/reactstrap/reactstrap">GitHub</NavLink>
-            </NavItem>
-            <UncontrolledDropdown nav inNavbar>
-              <DropdownToggle nav caret>
-                Options
-              </DropdownToggle>
-              <DropdownMenu right>
-                <DropdownItem>
-                  Option 1
-                </DropdownItem>
-                <DropdownItem>
-                  Option 2
-                </DropdownItem>
-                <DropdownItem divider />
-                <DropdownItem>
-                  Reset
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-          </Nav>
-          <NavbarText>Simple Text</NavbarText>
-        </Collapse>
+      <Navbar className='bg-success text-white' dark expand="md">
+        <Container>
+          <NavbarBrand>Tuku-Admin</NavbarBrand>
+          <NavbarToggler onClick={ () => this.setState({openNavbar: !this.state.openNavbar})} />
+          <Collapse isOpen={this.state.openNavbar} navbar>
+            <Nav className="ml-auto" navbar>
+              <NavItem>
+                <NavLink href='#'>Home</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink href='#'>About</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink href='#'>Contact Us</NavLink>
+              </NavItem>
+            </Nav>
+          </Collapse>
+        </Container>
       </Navbar>
-    </div>
     )
   }
 }
