@@ -53,7 +53,7 @@ class ModalCreate extends React.Component{
       window.alert(message)
     } else {
       window.alert(this.state.popUpMsg)
-      this.props.modalCloseNew()
+      this.props.modalCloseNew('crt')
     }
   }
 

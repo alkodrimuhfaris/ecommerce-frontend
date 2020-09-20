@@ -51,6 +51,19 @@ class AdminItem extends React.Component {
           id: 0
         }
       },
+      oldQueryPage: {
+        page: 1,
+        limit: 5,
+        search: {
+          name: ''
+        },
+        sort: {
+          id: 0
+        }
+      },
+      url: 'http://localhost:8080/items/?page=1&limit=5&search=&sort=',
+      defUrl: 'http://localhost:8080/items/?page=1&limit=5&search=&sort=',
+      changeUrl: 'http://localhost:8080/items',
       popUpMsg: '',
       searchKey: 'name',
       sortKey: 'id',
@@ -64,17 +77,39 @@ class AdminItem extends React.Component {
     await this.getData()
   }
 
-  getData = async (url=`http://localhost:8080/items/?${qs.stringify({...this.state.queryPage})}`) => {
+  getData = async (url = this.state.queryPage) => {
+    console.log('ini url')
+    console.log(url)
     let allCategories = await axios.get('http://localhost:8080/categories?page=1&sort[categories.name]=&limit=-')
     allCategories = allCategories.data.data
-    const dataGet = await axios.get(url)
+    const dataGet = await axios.get('http://localhost:8080/items', {url})
     const { pageInfo, data } = dataGet.data
     console.log(pageInfo)
+    console.log(url)
     this.setState({
       data,
       pageInfo,
       allCategories
     })
+  }
+
+  editQuery = async (
+    limit=this.state.queryPage.limit,
+    search=this.state.queryPage.search, 
+    sort=this.state.queryPage.sort
+    ) => {
+      let queryPage = {
+        ...this.state.queryPage,
+        ...limit,
+        ...search,
+        ...sort
+      }
+      let url = `http://localhost:8080/items/?${qs.stringify({...queryPage})}`
+      await this.getData(url)
+      this.setState({
+        queryPage,
+        url
+      })
   }
 
    
@@ -151,11 +186,15 @@ class AdminItem extends React.Component {
           <ItemTable 
             data={data}
             categories={allCategories}
+            queryPage = {this.state.queryPage}
+            queryOld = {this.state.oldQueryPage}
+            applyChange = {async url => this.getData(url)}
             openNew = {() => this.setState({modalOpenNew: true})}
             openDetail = {(id,n) => this.openModalDetailDelete(id,n)}
             openDelete = {(id,n) => this.openModalDetailDelete(id,n)} 
           />
           <Pagination
+            data = {this.state.data}
             pageInfo = {this.state.pageInfo}
             queryPage = {this.state.queryPage}
             changePage = {async url => this.getData(url)}
@@ -179,7 +218,7 @@ class AdminItem extends React.Component {
           formUpdate={formUpdate}
           id={dataItem.id}
           categories={allCategories}
-          modalDetail= {async id => this.openModalDetail(id)}
+          modalDetail= { (id,n) => this.openModalDetailDelete(id,n)}
           modalCloseUpdate={async n => this.closeModal(n)}
         />
         <ModalDelete 

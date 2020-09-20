@@ -56,8 +56,8 @@ class ModalUpdate extends React.Component{
       if(success) {
         window.confirm(this.state.popUpMsg)
         console.log(this.state.formUpdate)
-        this.props.modalCloseUpdate()
-        this.props.modalDetail(this.props.id)
+        this.props.modalCloseUpdate('updt')
+        this.props.modalDetail(this.props.id, 0)
       }
     } finally {
     }

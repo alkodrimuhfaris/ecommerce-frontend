@@ -14,26 +14,23 @@ class Paging extends React.Component{
     this.state = {
       pageInfo: {},
       queryPage: {},
-      link: [],
-      prev: '',
-      mid: '',
-      next: ''
+      link: []
     }
   }
 
   getArrLink = () => {
     let link = []
-    if (Object.keys(this.state.pageInfo)) {
-      let { currentPage } = this.state.pageInfo
+    if (Object.keys(this.props.pageInfo).length) {
+      let { currentPage } = this.props.pageInfo
       console.log('change page')
       for (let i = currentPage-2 ; i <= currentPage+2; i++){
         link.push(i)
       }
       link = link.map(item => {
-        if(item<1 || item>this.state.pageInfo.pages){
+        if(item<1 || item>this.props.pageInfo.pages){
           item = ['','#']
         } else {
-          item = [ item, `http://localhost:8080/items/?${qs.stringify({...this.state.queryPage, ... {page: item}})}`]
+          item = [ item, `http://localhost:8080/items/?${qs.stringify({...this.props.queryPage, ... {page: item}})}`]
         }
         return item
       })
@@ -41,24 +38,21 @@ class Paging extends React.Component{
     } else {
       link = []
     }
-    this.setState({
-      link
-    })
+    return link
   }
 
   getPrev = () => {
-    const { pageInfo, queryPage } = this.state
     let prev = 0
-    if (Object.keys(pageInfo).length) {
-      if (pageInfo.currentPage > 1) 
+    if (Object.keys(this.props.pageInfo).length) {
+      if (this.props.pageInfo.currentPage > 1) 
       {
         prev =
           <React.Fragment>
             <PaginationItem>
-              <PaginationLink first onClick={this.handlePageClick} href={`http://localhost:8080/items/?${qs.stringify({...this.state.queryPage, ... {page: 1}})}`} />
+              <PaginationLink first onClick={(e) => this.handlePageClick(1, e)} href={`http://localhost:8080/items/?${qs.stringify({...this.props.queryPage, ... {page: 1}})}`} />
             </PaginationItem>
             <PaginationItem>
-              <PaginationLink previous onClick={this.handlePageClick} href={pageInfo.prefLink} />
+              <PaginationLink previous onClick={(e) => this.handlePageClick((this.props.pageInfo.currentPage-1), e)} href={this.props.pageInfo.prefLink} />
             </PaginationItem>
           </React.Fragment>
       } else {
@@ -75,23 +69,20 @@ class Paging extends React.Component{
     } else {
       prev = 0
     }
-    this.setState({
-      prev
-    })
+    return prev
   }
 
   getNext = () => {
-    const { pageInfo, queryPage } = this.state
     let next = 0
-    if (Object.keys(pageInfo).length){
-      if (pageInfo.currentPage < pageInfo.pages) {
+    if (Object.keys(this.props.pageInfo).length){
+      if (this.props.pageInfo.currentPage < this.props.pageInfo.pages) {
         next =
         <React.Fragment>
           <PaginationItem>
-            <PaginationLink next onClick={this.handlePageClick} href={pageInfo.nextLink} />
+            <PaginationLink next onClick={(e) => this.handlePageClick((this.props.pageInfo.currentPage+1), e)} href={this.props.pageInfo.nextLink} />
           </PaginationItem>
           <PaginationItem>
-            <PaginationLink last onClick={this.handlePageClick} href={`http://localhost:8080/items/?${qs.stringify({...queryPage, ... {page: pageInfo.pages}})}`} />
+            <PaginationLink last onClick={(e) => this.handlePageClick((this.props.pageInfo.pages), e) } href={`http://localhost:8080/items/?${qs.stringify({...this.props.queryPage, ... {page: this.props.pageInfo.pages}})}`} />
           </PaginationItem>
         </React.Fragment>
       } else { 
@@ -106,21 +97,18 @@ class Paging extends React.Component{
         </React.Fragment>
       }
     }
-    this.setState({
-      next
-    })
+    return next
   }
 
   getMid = () => {
-    const { pageInfo, queryPage, link } = this.state
     let mid = 0
     mid =
-    Object.keys(pageInfo).length &&
-    link.map(item => {
-      if(item[0] === pageInfo.currentPage) {
+    Object.keys(this.props.pageInfo).length &&
+    this.getArrLink().map(item => {
+      if(item[0] === this.props.pageInfo.currentPage) {
         return(
           <PaginationItem active>
-            <PaginationLink onClick={this.handlePageClick} href={item[1]}>
+            <PaginationLink onClick={ (e) => this.handlePageClick(item[0], e) } href={item[1]}>
               {item[0]}
             </PaginationLink>
           </PaginationItem>
@@ -128,7 +116,7 @@ class Paging extends React.Component{
       } else if (item[0]) {
         return(
           <PaginationItem>
-            <PaginationLink onClick={this.handlePageClick} href={item[1]}>
+            <PaginationLink onClick={(e) => this.handlePageClick(item[0], e)} href={item[1]}>
               {item[0]}
             </PaginationLink>
           </PaginationItem>
@@ -136,42 +124,29 @@ class Paging extends React.Component{
       } else {
         return(
           <PaginationItem disable>
-            <PaginationLink onClick={this.handlePageClick} href={item[1]}>
-              {item[0]}
+            <PaginationLink href={item[1]}>
+              &nbsp;
             </PaginationLink>
           </PaginationItem>
         )
       }
     })
-    this.setState({
-      mid
-    })
+    return mid
   }
 
 
-  handlePageClick = async (key) => {
+  handlePageClick = async (page, key) => {
     key.preventDefault()
     console.log(key.target.href)
-    await this.props.changePage(key.target.href)
+    console.log(page)
+    let query = {
+      ...this.props.queryPage,
+      page
+    }
+    console.log(query)
+    await this.props.changePage(query)
   };
 
-  componentDidMount(){
-    this.getNext()
-    this.getMid()
-    this.getPrev()
-    this.getArrLink()
-    this.props.changePage()
-  }
-
-  componentDidUpdate(prevProps){
-    if(this.props.pageInfo !== prevProps.pageInfo){
-      this.setState({
-        pageInfo: this.props.pageInfo,
-        queryPage: this.props.queryPage,
-      })
-      this.getArrLink()
-    }
-  }
 
   render(){
     const { pageInfo, queryPage, link } = this.props
@@ -179,9 +154,9 @@ class Paging extends React.Component{
       <React.Fragment>
         <div className='my-3'>
           <Pagination aria-label="Page navigation">
-            {this.state.prev}
-            {this.state.mid}           
-            {this.state.next}
+            {this.getPrev()}
+            {this.getMid()}           
+            {this.getNext()}
           </Pagination>
         </div>
       </React.Fragment>
