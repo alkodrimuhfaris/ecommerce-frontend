@@ -17,15 +17,15 @@ import {ReactComponent as SearchLogo} from '../../Assets/icons/searchIcon.svg'
 import {ReactComponent as Filter} from '../../Assets/icons/filter.svg'
 import {ReactComponent as Asc} from '../../Assets/icons/sortAsc.svg'
 import {ReactComponent as Desc} from '../../Assets/icons/sortDsc.svg'
-import qs from 'querystring'
 
 class ItemTable extends React.Component{
   constructor(props){
     super(props)
     this.state = {
       searchVal: '',
-      sortKey: '',
-      sortVal:'',
+      sortKey: 'created_at',
+      sortVal:0,
+      sortValBtn:null,
       dateFrom: {
         key: 'created_at',
         val: ''
@@ -36,48 +36,76 @@ class ItemTable extends React.Component{
       },
       dateFromVal: '',
       dateToVal: '',
-      queryPage: {}
+      queryPage: {},
+      applyBtn: true,
+      newestBtn: false,
+      oldestBtn: true
     }
-  }
-
-  changeIconButton = () => {
-
   }
 
   filterDate = (event) => {
     this.setState({
-      [event.target.name]: {
-        ...{val: [event.target.value]}
-      }
-    })
+      [event.target.name]: event.target.value,
+      })
+  }
+
+  handleSortBtn = (n, event) => {
+    event.preventDefault()
+    if (n===0){
+      this.setState({
+        sortKey: 'created_at',
+        sortVal: n,
+        newestBtn: false,
+        oldestBtn: true,
+        sortValBtn: null
+      })
+    } else {
+      this.setState({
+        sortKey: 'created_at',
+        sortVal: n,
+        newestBtn: true,
+        oldestBtn: false,
+        sortValBtn: null
+      })
+    }
+    
   }
 
   searchAndSort = (event) => {
     let key = event.target.name
     let val = event.target.value
     this.setState({
-      [key]: val
+      [key]: val,
     })
+    if (event.target.name === 'sortValBtn') {
+      this.setState({
+        newestBtn: true,
+        oldestBtn: true,
+      })
+    }
   }
 
   handleSearchSort = async (event) => {
     event.preventDefault()
-    let search = { name: this.state.searchVal }
-    let sort = { [this.state.sortKey]: this.state.sortVal }
+    let search = {search: { name: this.state.searchVal }}
+    let sort = {}
+    if (!this.state.sortValBtn){
+      sort = {sort: { [this.state.sortKey]: this.state.sortVal }}
+    } else {
+      sort = {sort: { [this.state.sortKey]: this.state.sortValBtn }}
+    }
+    let dateFrom = {dateFrom: {
+      ...this.state.dateFrom,
+      val: this.state.dateFromVal.split('-').join('')}}
+    let dateTo = {dateTo: {
+      ...this.state.dateTo,
+      val: this.state.dateToVal.split('-').join('')}}
     let queryPage = {
-      ...this.state.queryPage,
-      ...{search: {
-        ...search
-      }},
-      ...{sort: {
-        ...sort
-      }},
-      ...{dateFrom: {
-        ...this.state.dateFrom
-      }},
-      ...{dateTo: {
-        ...this.state.dateTo
-      }}
+      ...this.props.queryPage,
+      ...dateFrom,
+      ...dateTo,
+      ...search,
+      ...sort
     }
     await this.props.applyChange(queryPage)
     this.setState({
@@ -90,8 +118,9 @@ class ItemTable extends React.Component{
     await this.props.applyChange(this.props.queryOld)
     this.setState({
       searchVal: '',
-      sortKey: '',
-      sortVal:'',
+      sortKey: 'price',
+      sortValBtn:null,
+      sortVal:0,
       dateFrom: {
         key: 'created_at',
         val: ''
@@ -100,12 +129,18 @@ class ItemTable extends React.Component{
         key: 'created_at',
         val: ''
       },
-      queryPage: {}
+      dateFromVal: '',
+      dateToVal: '',
+      queryPage: {},
+      applyBtn: true,
+      newestBtn: false,
+      oldestBtn: true
     }) 
   }
 
   render(){
-    const { data } = this.props
+    const { data, pageInfo } = this.props
+    let num = ((pageInfo.currentPage-1)*pageInfo.dataPerPage)
     return(
       <Container>
         <Row xs="2">
@@ -142,6 +177,26 @@ class ItemTable extends React.Component{
                 <UncontrolledCollapse toggler="#toggler">
                   <Form onSubmit={this.handleSearchSort}>
                     <Label for="sortKey">Sort by</Label>
+                    <Row>
+                      <Col xs='12' md='6'>
+                        <Button
+                          className='rounded-pill my-3'
+                          outline={this.state.newestBtn}
+                          color='success'
+                          onClick={e => this.handleSortBtn(0, e)}>
+                            Newest
+                        </Button>
+                      </Col>
+                      <Col xs='12' md='6'>
+                        <Button
+                          className='rounded-pill my-3'
+                          outline={this.state.oldestBtn}
+                          color='success'
+                          onClick={e => this.handleSortBtn(1, e)}>
+                            Oldest
+                        </Button>
+                      </Col>
+                    </Row>
                     <Row form>
                       <Col xs='6' md='8'>
                         <FormGroup>
@@ -151,10 +206,9 @@ class ItemTable extends React.Component{
                           id="sortKey"
                           onChange={this.searchAndSort}
                           >
-                            <option disabled selected hidden>Chose one</option>
+                            <option value='created_at' disabled selected>Choose one</option>
                             <option value='price'>Price</option>
                             <option value='name'>Name</option>
-                            <option value='created_at'>Date added</option>
                           </Input>
                         </FormGroup>                      
                       </Col>
@@ -164,16 +218,16 @@ class ItemTable extends React.Component{
                             <CustomInput 
                             type="radio"
                             id="sortVal"
-                            name="sortVal"
-                            value={0}
+                            name="sortValBtn"
+                            value={1}
                             onChange={this.searchAndSort}
                             label={<Asc/>}
                             />
                             <CustomInput 
                             type="radio"
                             id="sortVal2"
-                            name="sortVal"
-                            value={1}
+                            name="sortValBtn"
+                            value={0}
                             onChange={this.searchAndSort}
                             label={<Desc/>}
                             />
@@ -185,9 +239,9 @@ class ItemTable extends React.Component{
                     <Label for="filterDateFrom">From Date</Label>
                     <Input
                       type="date"
-                      name="dateFrom"
+                      name="dateFromVal"
                       id="filterDateFrom"
-                      value={this.state.dateFrom.val}
+                      value={this.state.dateFromVal}
                       onChange={this.filterDate}
                     />
                   </FormGroup>
@@ -195,15 +249,18 @@ class ItemTable extends React.Component{
                     <Label for="filterDateTo">To Date</Label>
                     <Input
                       type="date"
-                      name="dateTo"
+                      name="dateToVal"
                       id="filterDateTo"
-                      value={this.state.dateTo.val}
+                      value={this.state.dateToVal}
                       onChange={this.filterDate}
                     />
                     <div className='d-flex justify-content-between'>
                       <Button
                       className='rounded-pill my-3'
-                      outline
+                      outline={this.state.applyBtn}
+                      onClick={() => this.setState({
+                        applyBtn: !this.state.applyBtn
+                      })}
                       color='success'
                       type='submit'>
                         Apply
@@ -226,15 +283,20 @@ class ItemTable extends React.Component{
           </Col>
         </Row>
         <Row xs="2">
-          <Col className='d-flex align-items-center justify-content-center border px-2 py-3' md='2' xs='3'><span className='text-center'>Item ID</span></Col>
+          <Col className='d-flex align-items-center justify-content-center border px-2 py-3' md='2' xs='3'><span className='text-center'>No.</span></Col>
           <Col className='d-flex align-items-center justify-content-center border px-2 py-3' md='3' xs='3'><span className='text-center'>Item name</span></Col>
           <Col className='d-flex align-items-center justify-content-center border px-2 py-3' md='3' xs='3'><span className='text-center'>Item price</span></Col>
           <Col className='d-flex align-items-center justify-content-center border px-2 py-3' md='4' xs='3'><span className='text-center'>Action</span></Col>
         </Row>
-        {Object.keys(data).length && data.map(item => {
+        {
+        (Object.keys(data).length) &&
+        ((pageInfo.count!==0) 
+        ?
+        (data.map(item => {
+          num++
           return(
             <Row xs="2">
-              <Col md='2' xs='3' className='border d-flex align-items-center justify-content-center px-2 py-3'><span className='text-center'>{item.id}</span></Col>
+              <Col md='2' xs='3' className='border d-flex align-items-center justify-content-center px-2 py-3'><span className='text-center'>{num}</span></Col>
               <Col md='3' xs='3' className='border d-flex align-items-center justify-content-center px-2 py-3'><span className='text-center'>{item.name}</span></Col>
               <Col md='3' xs='3' className='border d-flex align-items-center justify-content-center px-2 py-3'><span className='text-center'>{item.price}</span></Col>
               <Col md='4' xs='3' className='border d-flex align-items-center justify-content-center px-2 py-3'>
@@ -257,7 +319,16 @@ class ItemTable extends React.Component{
               </Col>
             </Row>
           )
-        })}
+        }))
+        :
+        (
+          <Container className='d-flex align-items-center justify-content-center border px-2 py-3' md='3' xs='3'>
+            <span className='text-center' color='danger'>{pageInfo.message}</span>
+          </Container>
+        )
+        )
+        
+        }
       </Container>
     )
   }

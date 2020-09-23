@@ -2,9 +2,10 @@ import React from 'react';
 import { 
   Pagination,
   PaginationItem,
-  PaginationLink 
+  PaginationLink,
+  Input
 } from 'reactstrap';
-import qs from 'querystring';
+import stringify from 'string.ify';
 
 
 // COMPONENTS
@@ -14,7 +15,9 @@ class Paging extends React.Component{
     this.state = {
       pageInfo: {},
       queryPage: {},
-      link: []
+      link: [],
+      limit: 5,
+      page: 1
     }
   }
 
@@ -30,7 +33,7 @@ class Paging extends React.Component{
         if(item<1 || item>this.props.pageInfo.pages){
           item = ['','#']
         } else {
-          item = [ item, `http://localhost:8080/items/?${qs.stringify({...this.props.queryPage, ... {page: item}})}`]
+          item = [ item, `http://localhost:8080/items/?${stringify({...this.props.queryPage, ... {page: item}})}`]
         }
         return item
       })
@@ -49,7 +52,7 @@ class Paging extends React.Component{
         prev =
           <React.Fragment>
             <PaginationItem>
-              <PaginationLink first onClick={(e) => this.handlePageClick(1, e)} href={`http://localhost:8080/items/?${qs.stringify({...this.props.queryPage, ... {page: 1}})}`} />
+              <PaginationLink first onClick={(e) => this.handlePageClick(1, e)} href={`http://localhost:8080/items/?${stringify({...this.props.queryPage, ... {page: 1}})}`} />
             </PaginationItem>
             <PaginationItem>
               <PaginationLink previous onClick={(e) => this.handlePageClick((this.props.pageInfo.currentPage-1), e)} href={this.props.pageInfo.prefLink} />
@@ -82,7 +85,7 @@ class Paging extends React.Component{
             <PaginationLink next onClick={(e) => this.handlePageClick((this.props.pageInfo.currentPage+1), e)} href={this.props.pageInfo.nextLink} />
           </PaginationItem>
           <PaginationItem>
-            <PaginationLink last onClick={(e) => this.handlePageClick((this.props.pageInfo.pages), e) } href={`http://localhost:8080/items/?${qs.stringify({...this.props.queryPage, ... {page: this.props.pageInfo.pages}})}`} />
+            <PaginationLink last onClick={(e) => this.handlePageClick((this.props.pageInfo.pages), e) } href={`http://localhost:8080/items/?${stringify({...this.props.queryPage, ... {page: this.props.pageInfo.pages}})}`} />
           </PaginationItem>
         </React.Fragment>
       } else { 
@@ -139,25 +142,66 @@ class Paging extends React.Component{
     key.preventDefault()
     console.log(key.target.href)
     console.log(page)
+    let limit=this.state.limit
+    console.log(limit)
+    let queryPage = {
+      ...this.props.queryPage,
+      limit,
+      page
+    }
+    console.log('ini query dari pageKlik')
+    console.log(queryPage)
+    await this.props.changePage(queryPage)
+    this.setState({
+      queryPage,
+      page,
+      limit
+    })
+  };
+
+  limitPage = async (e) => {
+    e.preventDefault()
+    e = e.target.value
     let query = {
       ...this.props.queryPage,
-      page
+      limit: e
     }
     console.log(query)
     await this.props.changePage(query)
-  };
+    this.setState({
+      limit: e
+    })
+  }
 
 
   render(){
     const { pageInfo, queryPage, link } = this.props
     return(
       <React.Fragment>
-        <div className='my-3'>
-          <Pagination aria-label="Page navigation">
-            {this.getPrev()}
-            {this.getMid()}           
-            {this.getNext()}
-          </Pagination>
+        <div className='my-3 row justify-content-center'>
+          <div className='col-2'>Displaying</div>
+          <div className='col-2'>
+            <Input type="select" name="limit" id="limit" value={this.state.limit} onChange={this.limitPage}>
+              <option value={5} selected>5</option>
+              <option value={10} selected>10</option>
+              <option value={25} selected>25</option>
+              <option value='-' selected>All</option>
+            </Input>
+          </div>
+          <div className='col-2'>
+            from {Object.keys(this.props.pageInfo).length && pageInfo.count}
+          </div>
+        </div>
+        <div className='my-3 row justify-content-center'>
+          <div className='col-7'>
+            <div className='d-flex justify-content-center'>
+              <Pagination aria-label="Page navigation" className='mx-auto'>
+                {this.getPrev()}
+                {this.getMid()}           
+                {this.getNext()}
+              </Pagination>
+            </div>
+          </div>
         </div>
       </React.Fragment>
     )

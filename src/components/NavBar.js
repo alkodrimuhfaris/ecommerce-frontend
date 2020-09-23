@@ -9,6 +9,13 @@ import {
   NavItem,
   NavLink,
 } from 'reactstrap'
+import { 
+  BrowserRouter as Router, 
+  Switch, 
+  Route, 
+  Link 
+} from 'react-router-dom';
+
 
 class NavBar extends Component {
   constructor(props){
@@ -26,15 +33,17 @@ class NavBar extends Component {
           <NavbarToggler onClick={ () => this.setState({openNavbar: !this.state.openNavbar})} />
           <Collapse isOpen={this.state.openNavbar} navbar>
             <Nav className="ml-auto" navbar>
-              <NavItem>
-                <NavLink href='#'>Home</NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink href='#'>About</NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink href='#'>Contact Us</NavLink>
-              </NavItem>
+              <Router>
+                <NavItem>
+                  <Link to='/Home'>Home</Link>
+                </NavItem>
+                <NavItem>
+                  <NavLink href='#'>About</NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink href='#'>Contact Us</NavLink>
+                </NavItem>
+              </Router>
             </Nav>
           </Collapse>
         </Container>

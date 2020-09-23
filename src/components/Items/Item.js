@@ -8,8 +8,9 @@ import ModalDetail from './ModalDetail';
 import { Container } from 'reactstrap';
 import {default as axios} from 'axios';
 import Pagination from '../Pagination';
-import qs from 'querystring';
-import ItemTable from './ItemTable'
+import stringify from '../Helpers/stringObj'
+import qs from 'querystring'
+import ItemTable from './ItemTable';
 
 
 class AdminItem extends React.Component {
@@ -69,7 +70,8 @@ class AdminItem extends React.Component {
       sortKey: 'id',
       searchValue: '',
       sortValue: 0,
-      allCategories: []
+      allCategories: [],
+      categoryItem: []
     }
   }
 
@@ -77,58 +79,94 @@ class AdminItem extends React.Component {
     await this.getData()
   }
 
-  getData = async (url = this.state.queryPage) => {
-    console.log('ini url')
-    console.log(url)
+  stringifyObj = (params) => {
+    if (Object.keys(params).length) {
+      const newParams = Object.entries(params)
+      Object.entries(params)
+      .forEach( item => {
+        let key = item[0]
+        let val = item[1]
+        if (typeof(val)==='object') {
+          Object.entries(val).forEach( nestItem => {
+            nestItem =[`${key}[${nestItem[0]}]`, nestItem[1]]
+            newParams.push(nestItem)
+          })
+        } else {
+          newParams.push(item)
+        }
+      })
+      params = newParams.filter(item => {
+        return typeof(item[1])!=='object'
+      })
+      console.log('params yang di-filter')
+      console.log(params)
+
+      let paramsObj = {}
+
+      params.forEach(item => {
+        Object.assign(paramsObj, {[item[0]]: item[1] })
+      })
+      params = paramsObj
+      console.log('params yang di-array-kan')
+      console.log(params)
+      console.log(qs.stringify(params))
+      return params
+    } else {
+      return params
+    }
+  }
+
+  getData = async (params = this.state.queryPage) => {
+    const stringParams = stringify(params)
+    console.log(stringParams)
     let allCategories = await axios.get('http://localhost:8080/categories?page=1&sort[categories.name]=&limit=-')
     allCategories = allCategories.data.data
-    const dataGet = await axios.get('http://localhost:8080/items', {url})
+    const dataGet = await axios.get('http://localhost:8080/items/?'+stringParams)
     const { pageInfo, data } = dataGet.data
+    const queryPage = {
+      ...params,
+      page: pageInfo.currentPage,
+      limit: pageInfo.limitPerPage
+    }
     console.log(pageInfo)
-    console.log(url)
-    this.setState({
-      data,
-      pageInfo,
-      allCategories
-    })
-  }
-
-  editQuery = async (
-    limit=this.state.queryPage.limit,
-    search=this.state.queryPage.search, 
-    sort=this.state.queryPage.sort
-    ) => {
-      let queryPage = {
-        ...this.state.queryPage,
-        ...limit,
-        ...search,
-        ...sort
-      }
-      let url = `http://localhost:8080/items/?${qs.stringify({...queryPage})}`
-      await this.getData(url)
+    console.log(params)
+    if (!data){
       this.setState({
-        queryPage,
-        url
+        data: {},
+        pageInfo,
+        allCategories,
+        queryPage
       })
+    } else {
+      this.setState({
+        data,
+        pageInfo,
+        allCategories,
+        queryPage
+      })
+    }
   }
-
    
   openModalDetailDelete = async (url, n) => {
     url = 'http://localhost:8080/items/'.concat(url)
     let dataItem = await axios.get(url)
     dataItem = dataItem.data.choosenData
+    let categoryItem = await axios.get('http://localhost:8080/categories/'.concat(dataItem.category_id))
+    categoryItem = categoryItem.data
     console.log('openModalDetail')
     if (n) {
       this.setState({
         modalOpenDelete: true,
         delUrl: url,
-        dataItem
+        dataItem,
+        categoryItem
       })
     } else {
       this.setState({
         modalOpenDetail: true,
         delUrl: url,
-        dataItem
+        dataItem,
+        categoryItem
       })
     }
   }
@@ -168,14 +206,14 @@ class AdminItem extends React.Component {
 
   render(){
     console.log('render parent')
-    const state = this.state
     const { 
       data, 
       dataItem,
       delUrl, 
       formUpdate,
       pageInfo,
-      allCategories 
+      allCategories,
+      categoryItem 
     } = this.state
     console.log(pageInfo)
     return(
@@ -185,6 +223,7 @@ class AdminItem extends React.Component {
           <h1  className = "my-3">Items on Tuku</h1>
           <ItemTable 
             data={data}
+            pageInfo={pageInfo}
             categories={allCategories}
             queryPage = {this.state.queryPage}
             queryOld = {this.state.oldQueryPage}
@@ -197,7 +236,7 @@ class AdminItem extends React.Component {
             data = {this.state.data}
             pageInfo = {this.state.pageInfo}
             queryPage = {this.state.queryPage}
-            changePage = {async url => this.getData(url)}
+            changePage = {async params => this.getData(params)}
           />
         </Container>
         <Footer/>
@@ -210,6 +249,7 @@ class AdminItem extends React.Component {
           dataItem={dataItem}
           modalOpenDetail={this.state.modalOpenDetail} 
           openUpdate = {() => this.openModalUpdate ()}
+          category={categoryItem}
           modalCloseDetail={async n => this.closeModal(n)}
           openDelete = {(id,n) => this.openModalDetailDelete(id,n)}
         />

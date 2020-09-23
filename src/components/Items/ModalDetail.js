@@ -24,7 +24,7 @@ class ModalDetail extends React.Component{
   }
 
   render(){
-    const { dataItem } = this.props
+    const { dataItem, category } = this.props
     return(
       <React.Fragment>
         {/* modal for read */}
@@ -40,8 +40,8 @@ class ModalDetail extends React.Component{
                 <Col xs={8} className='ml-1'>{`${dataItem.name}`}</Col>
               </Row>
               <Row className = 'my-3'>
-                <Col xs={3} className='mr-1'>Categry ID</Col>
-                <Col xs={8} className='ml-1'>{`${dataItem.category_id}`}</Col>
+                <Col xs={3} className='mr-1'>Category</Col>
+                <Col xs={8} className='ml-1'>{`${category.category}`}</Col>
               </Row>
               <Row className = 'my-3'>
                 <Col xs={3} className='mr-1'>Item Price</Col>
