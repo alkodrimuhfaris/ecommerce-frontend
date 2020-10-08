@@ -9,14 +9,19 @@
     "axios": "^0.20.0",
     "bootstrap": "^4.5.2",
     "cors": "^2.8.5",
+    "env": "^0.0.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-items-carousel": "^2.8.0",
     "react-js-pagination": "^3.0.3",
     "react-paginate": "^6.5.0",
+    "react-redux": "^7.2.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "reactstrap": "^8.5.1",
+    "redux": "^4.0.5",
+    "redux-logger": "^3.0.6",
+    "redux-promise-middleware": "^6.1.2",
     "string.ify": "^1.0.64"
   },
   "scripts": {
@@ -39,5 +44,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {}
 }

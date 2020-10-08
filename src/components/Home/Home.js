@@ -1,7 +1,8 @@
 import React from 'react';
 import NavBarClient from '../NavBarClient';
-import FirstCarousel from './carousel1';
-import { Container } from 'reactstrap'
+import FirstCarousel from './CarouselTop';
+import { Container } from 'reactstrap';
+import {connect} from 'react-redux'
 
 class Home extends React.Component {
   constructor(props){
@@ -14,7 +15,7 @@ class Home extends React.Component {
   render(){
     return(
       <React.Fragment>
-        <NavBarClient />
+        <NavBarClient {...this.props} />
         <Container>
           <div className='mt-5'>
             <FirstCarousel />
@@ -26,4 +27,9 @@ class Home extends React.Component {
   }
 }
 
-export default Home
+
+const mapStateToProps = state => ({auth: state.auth})
+
+const mapDispatchToProps = {}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home)
