@@ -10,6 +10,7 @@
     "bootstrap": "^4.5.2",
     "cors": "^2.8.5",
     "env": "^0.0.2",
+    "pure-react-carousel": "^1.27.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-items-carousel": "^2.8.0",

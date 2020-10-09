@@ -1,8 +1,8 @@
 import services from '../../helpers/services'
 
 export default {
-  login: (data, params)=>({
+  getProfile: (token)=>({
     type: 'AUTH_USER_LOGIN',
-    payload: services().post('/auth/login/'+params, data)
+    payload: services(token).post('/auth/login/')
   })
 }

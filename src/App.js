@@ -4,6 +4,8 @@ import Items from './components/Admin/Item'
 import Home from './components/Home/Home'
 import Login from './components/Auth/Login'
 import Signup from './components/Auth/Signup'
+import Profile from './components/Users/Profile'
+import NavBarClient from './components/NavBarClient'
 import {Provider} from 'react-redux'
 //Import store
 import store from './redux/store'
@@ -18,6 +20,8 @@ class App extends React.Component{
             <Route path='/' render={(props)=><Home {...props} />} exact/>
             <Route path='/login'render={(props)=> <Login {...props} />} exact/>
             <Route path='/signup' render={(props)=> <Signup {...props} />}  exact/>
+            <Route path='/profile' render={(props)=> <Profile {...props} />} exact />
+            <Route path='/NavBar' render={(props)=> <NavBarClient {...props} />} exact />
 
           </Switch>
         </BrowserRouter>

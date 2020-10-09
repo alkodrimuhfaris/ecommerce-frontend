@@ -15,12 +15,11 @@ class Login extends Component {
   }
   login = (e)=>{
     e.preventDefault()
-    const {email, password, params} = this.state
+    const {email} = this.state
     const data = {
-      email,
-      password
+      email
     }
-    this.props.login(data, params)
+    this.props.forgotPass(data, params)
     this.props.history.push('/')
   }
   onChangeText = (e)=>{
@@ -55,24 +54,13 @@ class Login extends Component {
         <Container style={{width:400, top:'50%', left:'50%', transform: `translateX(-50%) translateY(-50%)`}} className='position-absolute'>
             <div className='d-flex align-items-center flex-column'>
               <Logo/>
-              <div className='text-center my-4 h6'>Please Log in with your Account</div>
+              <div className='text-center my-4 h6'>Reset password</div>
             </div>
             
-            <div className='d-flex align-items-center flex-column'>
-              <ButtonGroup className='mx-auto my-4'>
-                <Button style={{width:100}} color='success' outline={this.state.custBtn} onClick={ e => this.toggleRole('customer', e)}>Customer</Button>
-                <Button style={{width:100}} color='success' outline={this.state.sellerBtn} onClick={e => this.toggleRole('seller', e)}>Seller</Button>
-              </ButtonGroup>
-            </div>
-
             <Form onSubmit={this.login}>
               <FormGroup className='mt-2'>
                 <Input value={this.state.email} onChange={this.onChangeText} type="email" name="email" id="email" placeholder='Email' />
               </FormGroup>
-              <FormGroup className='mt-2'>
-                <Input value={this.state.password} onChange={this.onChangeText} type="password" name="password" id="password" placeholder='Password' />
-              </FormGroup>
-              <div className='text-right'><Link to='/' className='ml-auto'>Forgot Password</Link></div>
               <Button type='submit' className='mt-2 rounded-pill' block color='success'>Login</Button>
             </Form>
             <div className='text-center my-3'>Don't have a Tuku account? <span><Link to='/signup'>Register!</Link></span></div>
