@@ -11,32 +11,38 @@ export default function Profile(props) {
   const user = useSelector(state => state.profile.userData)
   const userUpdated = useSelector(state => state.profile.isUpdated)
   const dispatch = useDispatch()
+  const formData = new FormData()
 
   const[name, setName] = useState('')
   const[email, setEmail] = useState('')
   const[phone, setPhone] = useState(0)
   const[gender, setGender] = useState('male')
   const[birthdate, setBirthdate] = useState('')
-  const[dataForm, setDataForm] = useState({})
+  const[avatar, setAvatar] = useState(null)
+  const[showAvatar, setShowAvatar] = useState('')
 
   useEffect(()=>{
-    dispatch(profileAction.getProfile(token))
+    !Object.keys(user).length && dispatch(profileAction.getProfile(token))
     setName(user.name)
     setEmail(user.email)
     setPhone(user.phone)
     setGender(user.gender)
     setBirthdate(user.birthdate)
-  },[dispatch, token, userUpdated])
+    setShowAvatar(user.avatar && process.env.REACT_APP_URL_BACKEND+'/'+user.avatar)
+    console.log(token)
+    console.log(user)
+  },[dispatch, token, user, userUpdated])
 
-  useEffect(()=>{
-    setDataForm(
-      name, email, phone, gender, birthdate
-    )
-  },[name, email, phone, gender, birthdate])
-
-  const updateUser = e => {
+  const saveChange = e => {
     e.preventDefault()
-    
+    let dataForm ={
+      name, email, phone, gender, birthdate
+    }
+    console.log(dataForm)
+    Object.values(dataForm).filter(item => item).length && dispatch(profileAction.patchProfile(token, dataForm))
+    avatar && formData.append('avatar', avatar)
+    avatar && dispatch(profileAction.patchProfile(token, formData))
+    avatar && setAvatar(null)
   }
 
   return (
@@ -96,7 +102,7 @@ export default function Profile(props) {
                 <div className='h4'>My profile</div>
                 <div className='text-muted small'>Manage your profile information</div>
               </div>
-              <Form className='my-3'>
+              <Form className='my-3' onSubmit={saveChange}>
                 <Row>
                   <Col xs='12' md='8'>
                     <FormGroup row>
@@ -152,14 +158,14 @@ export default function Profile(props) {
                     <Media className='flex-column align-items-center'>
                       <Media top className='rounded-circle position-relative'
                       style={{width:'7em', height:'7em'}}>
-                        <Media object src='https://via.placeholder.com/130' 
+                        <Media object src={showAvatar || 'https://via.placeholder.com/130' }
                         className='img-fluid position-absolute rounded-circle img-fluid'
                         style={{top:'50%', left:'50%', transform:'translate(-50%, -50%)'}} />
                       </Media>
                       <Media body className='my-3'>
                         <label className='btn btn-outline-secondary rounded-pill'>
                           <span>Select File</span>
-                          <Input type='file' accept='.jpg,.jpeg,.png' style={{display:'none'}}/>
+                          <Input onChange={e => setAvatar(e.target.files[0])} type='file' accept='.jpg,.jpeg,.png' style={{display:'none'}}/>
                         </label>
                       </Media>
                     </Media>
