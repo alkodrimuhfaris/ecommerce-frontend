@@ -19,30 +19,50 @@ export default function Cart() {
   },[])
 
   useEffect(()=>{
-    dataCart.length && setQuantity(dataCart.map(item => item.quantity))
+    dataCart.length && setQuantity(dataCart.map(item => {item = item.quantity; return(item)}))
+    console.log(quantity)
   },[dataCart])
 
   useEffect(()=>{
-    dataCart.length && setPrice(dataCart.map((item,i) => quantity[i]*item.price))
+    dataCart.length && setPrice(dataCart.map((item,i) => {item = quantity[i]*item.price; return(item)}))
+    console.log(price)
   },[dataCart, quantity])
 
   const increaseQty = i => {
-    setQuantity(prevQuantity => {
-      console.log(prevQuantity)
-      prevQuantity[i] = prevQuantity[i]+1
-      return(
-        prevQuantity
-      )
+    setQuantity(prevQty => {
+      console.log(prevQty)
+      return prevQty.map((item, index) => {
+        item = (index === i) ? item+1 : item
+        return(item)
+      })
     })
+    console.log(quantity[i])
+    console.log(quantity)
   }
 
   const decreaseQty = i => {
-    setQuantity(prevQuantity => {
-      console.log(prevQuantity)
-      prevQuantity[i] = prevQuantity[i]-1
-      return(
-        prevQuantity
-      )
+    setQuantity(prevQty => {
+      console.log(prevQty)
+      return prevQty.map((item, index) => {
+        item = (index === i) ? item-1 : item
+        return(item)
+      })
+    })
+    console.log(quantity[i])
+    console.log(quantity)
+  }
+
+  const handleChangeQty = (i, e) => {
+    let val = e.target.value
+    if (e.target.value <= 0) {
+      alert('Cannot add zero and negative value!')
+      val = 1
+    }
+    setQuantity(prevQty => {
+      return prevQty.map((item, index) => {
+        item = (index === i) ? val : item
+        return(item)
+      })
     })
   }
   
@@ -75,11 +95,12 @@ export default function Cart() {
                     </Col>
                     <Col xs='3' className='d-flex'>
                       <Button color='secondary' disabled={quantity[i] <= 1} className='rounded-circle'
-                        onClick={() => increaseQty()}>&#8722;</Button>
+                        onClick={() => decreaseQty(i)}>&#8722;</Button>
                       <Input className='text-center border-0' style={{border:'none'}} type='number' name='quantity' value={quantity[i]}
-                        onChange={e => setQuantity(e.target.value)} style={{width:'4em'}}/>
+                        onChange={e => handleChangeQty(i, e)} style={{width:'4em'}}/>
+                      {/* <div>{quantity[i]}</div> */}
                       <Button color='light' className='rounded-circle'
-                        onClick={() => decreaseQty()}>&#43;</Button>
+                        onClick={() => increaseQty(i)}>&#43;</Button>
                     </Col>
                     <Col xs='2'>
                       {price[i]}
