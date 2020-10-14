@@ -3,7 +3,6 @@ const initialState = {
   isError: false,
   isLoading: false,
   alertMsg: '',
-  token: ''
 }
 
 export default (state=initialState, action) => {
@@ -24,14 +23,15 @@ export default (state=initialState, action) => {
       }
     }
     case 'AUTH_USER_SIGNUP_FULFILLED':{
-      const {message, token} = action.payload.data.message
-      if(token){
+      const {message, success} = action.payload.data
+      console.log(action.payload)
+      console.log(success)
+      if(success){
         return {
           userIsCreated: true,
           isError: false,
           alertMsg: message,
-          isLoading: false,
-          token
+          isLoading: false
         }
       }else{
         return {

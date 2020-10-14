@@ -23,6 +23,7 @@ export default (state=initialState, action) => {
     }
     case 'AUTH_USER_LOGIN_FULFILLED':{
       const {message, token} = action.payload.data
+      localStorage.setItem('token', token)
       if(token){
         return {
           isLogin: true,
@@ -40,7 +41,29 @@ export default (state=initialState, action) => {
           isLoading: false        
         }
       }
-    } default :{
+    } case 'AUTH_USER_LOGOUT' : {
+      localStorage.removeItem('token')
+      return {
+        ...state,
+        isLogin: false,
+        isError: false,
+        alertMsg: 'log out successfully!',
+        isLoading: false,
+        token: ''
+      }
+    } case 'CLEAR_MESSAGE': {
+      return {
+        ...state,
+        alertMsg: ''
+      }
+    } case 'SET_TOKEN': {
+      return {
+        ...state,
+        isLogin: true,
+        token:action.payload
+      }
+    }
+    default :{
       return {
         ...state
       }

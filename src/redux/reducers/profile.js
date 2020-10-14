@@ -1,5 +1,7 @@
 const initialState = {
-  userData: {}
+  userData: {
+    avatar: ''
+  }
 }
 
 export default (state=initialState, action) => {
@@ -15,10 +17,10 @@ export default (state=initialState, action) => {
       }
     }
     case 'GET_PROFILE_FULFILLED':{
-      const {payload} = action
-      if(token){
+      const {data} = action.payload
+      if(data.length){
         return {
-          userData: payload
+          userData: data
         }
       }else{
         return {

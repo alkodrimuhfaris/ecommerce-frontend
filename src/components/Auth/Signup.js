@@ -36,8 +36,7 @@ class Login extends Component {
         phone
       }
     }
-    this.props.signup(data, params)
-    this.props.history.push('/')
+    this.props.createUser(data, params)
   }
   onChangeText = (e)=>{
     this.setState({[e.target.name]:e.target.value})
@@ -59,9 +58,10 @@ class Login extends Component {
     }
   }
 
-  componentDidMount(){
-    console.log(this.state.params)
+  componentDidUpdate(){
+    console.log('compenent did mount')
     console.log(this.props)
+    this.props.signup.userIsCreated && this.props.history.push('/login')
   }
 
 
@@ -116,7 +116,7 @@ class Login extends Component {
 const mapStateToProps = state => ({signup: state.signup})
 
 const mapDispatchToProps = {
-  signup: signup.createUser
+  createUser: signup.createUser
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login)

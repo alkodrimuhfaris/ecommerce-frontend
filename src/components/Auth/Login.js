@@ -4,6 +4,8 @@ import {connect} from 'react-redux'
 import {ReactComponent as Logo} from '../../Assets/icons/icon.svg'
 import {Link} from 'react-router-dom'
 import auth from '../../redux/actions/auth'
+import profile from '../../redux/actions/profile'
+import StarRating from '../StarRating'
 
 class Login extends Component {
   state ={
@@ -11,7 +13,8 @@ class Login extends Component {
     password: '',
     params: 'customer',
     custBtn: false,
-    sellerBtn: true
+    sellerBtn: true,
+    signUpAlert: this.props.signup.isError || this.props.signup.alertMsg!==''
   }
   login = (e)=>{
     e.preventDefault()
@@ -46,10 +49,20 @@ class Login extends Component {
     console.log('compenent did mount')
     console.log(this.state.isLogin)
     this.props.auth.isLogin && this.props.history.push('/')
+    this.state.signUpAlert && setTimeout(() => {
+      this.setState({
+          signUpAlert: false
+      })
+   }, 3000)
+  }
+
+  componentDidMount(){
+    console.log(this.props)
   }
 
 
   render() {
+    const {auth, signup} = this.props
     return (
       <React.Fragment style={{height:'100vh'}} className='position-relative'>
         <Container style={{width:400, top:'50%', left:'50%', transform: `translateX(-50%) translateY(-50%)`}} className='position-absolute'>
@@ -57,13 +70,16 @@ class Login extends Component {
               <Logo/>
               <div className='text-center my-4 h6'>Please Log in with your Account</div>
             </div>
-            
+
             <div className='d-flex align-items-center flex-column'>
               <ButtonGroup className='mx-auto my-4'>
                 <Button style={{width:100}} color='success' outline={this.state.custBtn} onClick={ e => this.toggleRole('customer', e)}>Customer</Button>
                 <Button style={{width:100}} color='success' outline={this.state.sellerBtn} onClick={e => this.toggleRole('seller', e)}>Seller</Button>
               </ButtonGroup>
             </div>
+
+            <Alert color={auth.isError?'danger':'success'} isOpen={auth.isError || auth.alertMsg!==''}>{auth.alertMsg}</Alert>
+            <Alert color={signup.isError?'danger':'success'} isOpen={this.state.signUpAlert}>{signup.alertMsg}</Alert>
 
             <Form onSubmit={this.login}>
               <FormGroup className='mt-2'>
@@ -83,7 +99,7 @@ class Login extends Component {
   }
 }
 
-const mapStateToProps = state => ({auth: state.auth})
+const mapStateToProps = state => ({auth: state.auth, signup: state.signup})
 
 const mapDispatchToProps = {
   login: auth.login

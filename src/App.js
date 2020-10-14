@@ -1,16 +1,31 @@
 import React from 'react'
-import { BrowserRouter , Switch, Route, Link } from 'react-router-dom'
+import { BrowserRouter , Switch, Route, Link} from 'react-router-dom'
+import PrivateRoute from './components/Auth/PrivateRoute'
 import Items from './components/Admin/Item'
 import Home from './components/Home/Home'
 import Login from './components/Auth/Login'
 import Signup from './components/Auth/Signup'
 import Profile from './components/Users/Profile'
 import NavBarClient from './components/NavBarClient'
+import ItemDetails from './components/Items/ItemDetails'
+import Cart from './components/Users/Cart'
 import {Provider} from 'react-redux'
+import {connect} from 'react-redux'
+import authAction from './redux/actions/auth'
 //Import store
 import store from './redux/store'
 
 class App extends React.Component{
+  componentDidMount(){
+    if (localStorage.getItem('token')){
+      this.props.setToken(localStorage.getItem('token'))
+    }
+  }
+  componentDidUpdate(){
+    if (localStorage.getItem('token')){
+      this.props.setToken(localStorage.getItem('token'))
+    }
+  }
   render(){
     return(
       <Provider store={store}>
@@ -22,7 +37,10 @@ class App extends React.Component{
             <Route path='/signup' render={(props)=> <Signup {...props} />}  exact/>
             <Route path='/profile' render={(props)=> <Profile {...props} />} exact />
             <Route path='/NavBar' render={(props)=> <NavBarClient {...props} />} exact />
-
+            <Route path='/product/:id' render={(props) => <ItemDetails {...props} /> } exact />
+            <PrivateRoute path='/cart'>
+              <Cart/>
+            </PrivateRoute>
           </Switch>
         </BrowserRouter>
       </Provider>
@@ -30,4 +48,14 @@ class App extends React.Component{
   }
 }
 
-export default App;
+const mapStateToProps = state => ({
+  token: state.auth.token
+})
+
+const mapDispatchToProps = {
+  setToken: authAction.setToken
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)
+
+// export default App

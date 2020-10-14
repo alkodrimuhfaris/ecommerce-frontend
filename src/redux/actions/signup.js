@@ -1,8 +1,8 @@
-import {default as axios} from 'axios'
+import services from '../../helpers/services'
 
 export default {
   createUser: (data, params)=>({
     type: 'AUTH_USER_SIGNUP',
-    payload: axios.post(process.env.REACT_APP_URL_BACKEND+'auth/signup/'+params, data)
+    payload: services().post('/auth/signup/'+params, data)
   })
 }
