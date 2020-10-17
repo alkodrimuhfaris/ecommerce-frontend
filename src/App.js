@@ -35,11 +35,16 @@ class App extends React.Component{
             <Route path='/' render={(props)=><Home {...props} />} exact/>
             <Route path='/login'render={(props)=> <Login {...props} />} exact/>
             <Route path='/signup' render={(props)=> <Signup {...props} />}  exact/>
-            <Route path='/profile' render={(props)=> <Profile {...props} />} exact />
             <Route path='/NavBar' render={(props)=> <NavBarClient {...props} />} exact />
             <Route path='/product/:id' render={(props) => <ItemDetails {...props} /> } exact />
             <PrivateRoute path='/cart'>
               <Cart/>
+            </PrivateRoute>
+            <PrivateRoute path='/profile'>
+              <Profile/>
+            </PrivateRoute>
+            <PrivateRoute path='/address'>
+              <Profile/>
             </PrivateRoute>
           </Switch>
         </BrowserRouter>

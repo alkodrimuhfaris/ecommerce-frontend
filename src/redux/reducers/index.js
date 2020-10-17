@@ -5,9 +5,11 @@ import signup from './signup'
 import profile from './profile'
 import items from './items'
 import cart from './cart'
+import address from './address'
+import modalButton from './modalButton'
 
 console.log(auth)
 
 export default combineReducers({
-  auth, signup, profile, items, cart
+  auth, signup, profile, items, cart, address, modalButton 
 })

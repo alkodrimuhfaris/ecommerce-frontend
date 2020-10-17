@@ -92,7 +92,7 @@ export default function NavbarClient(props) {
   return(
     <Provider store={store}>
       <Router>
-        <Navbar style={{height:'5em'}} className='bg-white text-dark shadow justify-content-start' light expand="md">
+        <Navbar className='bg-white text-dark shadow justify-content-start sticky-top' light expand="md">
           <Container>
             <NavbarBrand style={{width:'15%'}}>
               <Button style={{width:'100%', backgroundColor:'#fff', border:'none'}} onClick={e => pushTo('/', e)}>

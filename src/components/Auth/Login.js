@@ -46,8 +46,12 @@ class Login extends Component {
   }
 
   componentDidUpdate(){
-    console.log('compenent did mount')
-    console.log(this.state.isLogin)
+    let {state} = this.props.location
+    console.log(state)
+    if(state){
+      console.log('state is true')
+      return this.props.history.replace(state.from.pathname)
+    }
     this.props.auth.isLogin && this.props.history.push('/')
     this.state.signUpAlert && setTimeout(() => {
       this.setState({
