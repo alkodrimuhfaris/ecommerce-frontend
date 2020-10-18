@@ -5,7 +5,7 @@ import {
   PaginationLink,
   Input
 } from 'reactstrap';
-import stringify from 'string.ify';
+import qs from 'querystring';
 
 
 // COMPONENTS
@@ -33,7 +33,7 @@ class Paging extends React.Component{
         if(item<1 || item>this.props.pageInfo.pages){
           item = ['','#']
         } else {
-          item = [ item, `http://localhost:8080/items/?${stringify({...this.props.queryPage, ... {page: item}})}`]
+          item = [ item, process.env.REACT_APP_URL_BACKEND+`/items/?${qs.stringify({...this.props.queryPage, ... {page: item}})}`]
         }
         return item
       })
@@ -52,7 +52,7 @@ class Paging extends React.Component{
         prev =
           <React.Fragment>
             <PaginationItem>
-              <PaginationLink first onClick={(e) => this.handlePageClick(1, e)} href={`http://localhost:8080/items/?${stringify({...this.props.queryPage, ... {page: 1}})}`} />
+              <PaginationLink first onClick={(e) => this.handlePageClick(1, e)} href={process.env.REACT_APP_URL_BACKEND+`/items/?${qs.stringify({...this.props.queryPage, ... {page: 1}})}`} />
             </PaginationItem>
             <PaginationItem>
               <PaginationLink previous onClick={(e) => this.handlePageClick((this.props.pageInfo.currentPage-1), e)} href={this.props.pageInfo.prefLink} />
@@ -85,7 +85,7 @@ class Paging extends React.Component{
             <PaginationLink next onClick={(e) => this.handlePageClick((this.props.pageInfo.currentPage+1), e)} href={this.props.pageInfo.nextLink} />
           </PaginationItem>
           <PaginationItem>
-            <PaginationLink last onClick={(e) => this.handlePageClick((this.props.pageInfo.pages), e) } href={`http://localhost:8080/items/?${stringify({...this.props.queryPage, ... {page: this.props.pageInfo.pages}})}`} />
+            <PaginationLink last onClick={(e) => this.handlePageClick((this.props.pageInfo.pages), e) } href={process.env.REACT_APP_URL_BACKEND+`/items/?${qs.stringify({...this.props.queryPage, ... {page: this.props.pageInfo.pages}})}`} />
           </PaginationItem>
         </React.Fragment>
       } else { 
