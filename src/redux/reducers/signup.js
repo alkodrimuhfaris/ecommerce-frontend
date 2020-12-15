@@ -3,46 +3,42 @@ const initialState = {
   isError: false,
   isLoading: false,
   alertMsg: '',
-}
+};
 
-export default (state=initialState, action) => {
-  switch(action.type){
-    case 'AUTH_USER_SIGNUP_PENDING' : {
+export default (state = initialState, action) => {
+  switch (action.type) {
+    case 'AUTH_USER_SIGNUP_PENDING': {
       return {
         ...state,
-        isLoading: true
-      }
+        isLoading: true,
+      };
     }
-    case 'AUTH_USER_SIGNUP_REJECTED' : {
-      const {message} = action.payload.data.message
-      message = message ? message : 'Unknown Error!'
+    case 'AUTH_USER_SIGNUP_REJECTED': {
       return {
         ...state,
         isError: true,
-        alertMsg: message
+        alertMsg: action.payload.response.data.message,
+        isLoading: false,
+      };
+    }
+    case 'AUTH_USER_SIGNUP_FULFILLED': {
+      return {
+        userIsCreated: true,
+        isError: false,
+        alertMsg: 'sign up successfull',
+        isLoading: false,
+      };
+    } 
+    case 'CLEAR_STATE': {
+      return {
+        userIsCreated: false,
+        isError: false,
+        alertMsg: '',
+        isLoading: false,
       }
     }
-    case 'AUTH_USER_SIGNUP_FULFILLED':{
-      const {message, success} = action.payload.data
-      console.log(action.payload)
-      console.log(success)
-      if(success){
-        return {
-          userIsCreated: true,
-          isError: false,
-          alertMsg: message,
-          isLoading: false
-        }
-      }else{
-        return {
-          ...state,
-          isError: true,
-          alertMsg: message,
-          isLoading: false        
-        }
-      }
-    } default :{
-      return state
+    default: {
+      return state;
     }
   }
-}
+};

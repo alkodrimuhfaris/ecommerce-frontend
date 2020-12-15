@@ -7,7 +7,7 @@ import ModalUpdate from './ModalUpdate';
 import ModalDetail from './ModalDetail';
 import { Container } from 'reactstrap';
 import {default as axios} from 'axios';
-import Pagination from '../Pagination';
+import Pagination from '../pagination';
 import stringify from '../Helpers/stringObj'
 import qs from 'querystring'
 import ItemTable from './ItemTable';
@@ -16,7 +16,6 @@ import ItemTable from './ItemTable';
 class AdminItem extends React.Component {
   constructor(props){
     super(props)
-    console.log('awowowo')
     this.state = {
       data: {},
       modalOpenDetail: false,
@@ -62,13 +61,10 @@ class AdminItem extends React.Component {
           id: 0
         }
       },
-      url: 'http://localhost:8080/items/?page=1&limit=5&search=&sort=',
-      defUrl: 'http://localhost:8080/items/?page=1&limit=5&search=&sort=',
-      changeUrl: 'http://localhost:8080/items',
+      url: '',
+      defUrl: '',
+      changeUrl: '',
       popUpMsg: '',
-      searchKey: 'name',
-      sortKey: 'id',
-      searchValue: '',
       sortValue: 0,
       allCategories: [],
       categoryItem: []
@@ -184,8 +180,7 @@ class AdminItem extends React.Component {
   }
 
   closeModal = async (n) => {
-    await this.getData()
-    if (n==='del'){
+    if (n === 'del'){
       this.setState({
         modalOpenDelete: false
       })

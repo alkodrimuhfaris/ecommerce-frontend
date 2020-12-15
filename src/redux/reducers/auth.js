@@ -1,9 +1,12 @@
+import jwtDecode from 'jwt-decode'
+
 const initialState = {
   isLogin: false,
   isError: false,
   isLoading: false,
   alertMsg: '',
-  token: ''
+  token: '',
+  isSeller: false,
 }
 
 export default (state=initialState, action) => {
@@ -18,19 +21,25 @@ export default (state=initialState, action) => {
       return {
         ...state,
         isError: true,
-        alertMsg: 'there is an error'
+        alertMsg: action.payload.response.data.message
       }
     }
     case 'AUTH_USER_LOGIN_FULFILLED':{
       const {message, token} = action.payload.data
+      const {role_id, id} = jwtDecode(token)
+      const isSeller = role_id === 3
+      console.log(isSeller)
       localStorage.setItem('token', token)
+      localStorage.setItem('isSeller', isSeller)
+      localStorage.setItem('id', id)
       if(token){
         return {
           isLogin: true,
           isError: false,
           alertMsg: message,
           isLoading: false,
-          token
+          token,
+          isSeller
         }
       }else{
         return {
@@ -43,6 +52,8 @@ export default (state=initialState, action) => {
       }
     } case 'AUTH_USER_LOGOUT' : {
       localStorage.removeItem('token')
+      localStorage.removeItem('isSeller')
+      localStorage.removeItem('id')
       return {
         ...state,
         isLogin: false,

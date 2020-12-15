@@ -1,8 +1,11 @@
-import services from '../../helpers/services'
+import services from '../../helpers/services';
 
 export default {
-  createUser: (data, params)=>({
+  createUser: (data, params) => ({
     type: 'AUTH_USER_SIGNUP',
-    payload: services().post('/auth/signup/'+params, data)
-  })
-}
+    payload: services().post(`/auth/signup/${params}`, data),
+  }),
+  clearState: () => ({
+    type: 'CLEAR_STATE',
+  }),
+};

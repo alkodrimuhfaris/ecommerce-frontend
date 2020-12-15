@@ -17,10 +17,19 @@ class PrivateRoute extends Component {
             }
             return child
           })
-          if(this.props.auth.isLogin){
-            return childWithProps
+          if(this.props.auth.isLogin) {
+            if (this.props.auth.isSeller){
+              return childWithProps
+            } else {
+              return <Redirect
+              to={{pathname: '/'}} />
+            }
           }else{
-            return <Redirect to={{pathname: '/login', state: {alert: 'Login first!', color: 'danger', from: this.props.location}}} />
+            return <Redirect
+              to={{
+                pathname: '/login',
+                state: {alert: 'Login as a seller!', color: 'danger', from: this.props.location}
+              }} />
           }
         }
       } />

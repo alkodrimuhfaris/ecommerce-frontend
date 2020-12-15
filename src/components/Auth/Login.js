@@ -4,6 +4,7 @@ import {connect} from 'react-redux'
 import {ReactComponent as Logo} from '../../Assets/icons/icon.svg'
 import {Link} from 'react-router-dom'
 import auth from '../../redux/actions/auth'
+import signup from '../../redux/actions/signup'
 import profile from '../../redux/actions/profile'
 import StarRating from '../StarRating'
 
@@ -14,7 +15,7 @@ class Login extends Component {
     params: 'customer',
     custBtn: false,
     sellerBtn: true,
-    signUpAlert: this.props.signup.isError || this.props.signup.alertMsg!==''
+    signUpAlert: false
   }
   login = (e)=>{
     e.preventDefault()
@@ -46,22 +47,28 @@ class Login extends Component {
   }
 
   componentDidUpdate(){
+    console.log(this.state)
     let {state} = this.props.location
-    console.log(state)
-    if(state){
-      console.log('state is true')
-      return this.props.history.replace(state.from.pathname)
-    }
-    this.props.auth.isLogin && this.props.history.push('/')
+    // console.log(state)
+    // if(state){
+    //   console.log('state is true')
+    //   return this.props.history.replace(state.from.pathname)
+    // }
+    const path = state ? state.from.pathname : '/'
+    this.props.auth.isLogin && this.props.history.push(state.from.pathname)
+    this.state.signUpAlert && setTimeout(() => {
+      this.setState({
+          signUpAlert: false
+      })
+    }, 3000)
+  }
+
+  componentDidMount(){
     this.state.signUpAlert && setTimeout(() => {
       this.setState({
           signUpAlert: false
       })
    }, 3000)
-  }
-
-  componentDidMount(){
-    console.log(this.props)
   }
 
 
@@ -106,7 +113,8 @@ class Login extends Component {
 const mapStateToProps = state => ({auth: state.auth, signup: state.signup})
 
 const mapDispatchToProps = {
-  login: auth.login
+  login: auth.login,
+  clearState: signup.clearState
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login)
