@@ -1,82 +1,95 @@
 const initialState = {
-  dataCart:[],
-  isAdded: false,
-  isLoading: false,
-  isError: false,
-  alertMsg: ''
-}
+  dataCart: [],
+  dataCartPending: false,
+  dataCartError: false,
+  dataCartSuccess: false,
+  dataCartMessage: '',
 
-export default (state=initialState, action)=>{
-  switch(action.type){
-    case 'POST_NEW_CART_PENDING' : {
+  postCartPending: false,
+  postCartError: false,
+  postCartSuccess: false,
+  postCartMessage: '',
+};
+
+export default (state = initialState, action) => {
+  switch (action.type) {
+    case 'POST_NEW_CART_PENDING': {
       return {
         ...state,
-        isLoading: true
-      }
+        postCartPending: true,
+        postCartError: false,
+        postCartSuccess: false,
+        postCartMessage: 'Posting cart..',
+      };
     }
     case 'POST_NEW_CART_REJECTED': {
       return {
         ...state,
-        isLoading: false,
-        isError: true,
-        alertMsg: 'There is an error at request data'
-      }
+        postCartPending: false,
+        postCartError: true,
+        postCartSuccess: false,
+        postCartMessage: 'There is an error at posting cart',
+      };
     }
     case 'POST_NEW_CART_FULFILLED': {
-      const {message, success} = action.payload.data
-      if(success){
+      const {message, success} = action.payload.data;
+      if (success) {
         return {
           ...state,
-          isAdded: true,
-          isError: false,
-          alertMsg: message,
-          isLoading: false
-        }
-      }else{
-        return {
-          ...state,
-          isAdded: false,
-          isError: true,
-          alertMsg: message,
-          isLoading: false        
-        }
+          postCartPending: false,
+          postCartError: false,
+          postCartSuccess: true,
+          postCartMessage: 'Post data cart successfully',
+        };
       }
-    }
-    case 'GET_CART_PENDING' : {
       return {
         ...state,
-        isLoading: true
-      }
+        postCartSuccess: false,
+        postCartError: true,
+        postCartMessage: message,
+        postCartPending: false,
+      };
+    }
+    case 'GET_CART_PENDING': {
+      return {
+        ...state,
+        dataCartPending: true,
+        dataCartError: false,
+        dataCartSuccess: false,
+        dataCartMessage: 'Getting data cart...',
+      };
     }
     case 'GET_CART_REJECTED': {
       return {
         ...state,
-        isLoading: false,
-        isError: true,
-        alertMsg: 'There is an error at request data'
-      }
+        dataCartPending: false,
+        dataCartError: true,
+        dataCartSuccess: false,
+        dataCartMessage: 'There is an error at request data',
+      };
     }
     case 'GET_CART_FULFILLED': {
-      const {message, success, data} = action.payload.data
-      if(success){
+      const {message, success, data} = action.payload.data;
+      if (success) {
         return {
           ...state,
           dataCart: data,
-          isError: false,
-          alertMsg: message,
-          isLoading: false
-        }
-      }else{
-        return {
-          ...state,
-          isError: true,
-          alertMsg: message,
-          isLoading: false        
-        }
+          dataCartPending: false,
+          dataCartError: false,
+          dataCartSuccess: true,
+          dataCartMessage: 'Success get data cart',
+        };
       }
+      return {
+        ...state,
+        dataCartPending: false,
+        dataCartError: true,
+        dataCartSuccess: false,
+        dataCartMessage: message,
+      };
     }
-    default : {
-      return state
+    default: {
+      return state;
     }
   }
-}
+};

@@ -26,7 +26,7 @@ export default (state = initialState, action) => {
       };
     }
     case 'GET_ADDRESS_FULFILLED': {
-      const { data, success, message } = action.payload.data;
+      const {data, success, message} = action.payload.data;
       if (success) {
         return {
           ...state,
@@ -44,7 +44,8 @@ export default (state = initialState, action) => {
         isPending: false,
         success,
       };
-    } case 'PATCH_ADDRESS_PENDING': {
+    }
+    case 'PATCH_ADDRESS_PENDING': {
       return {
         ...state,
         isPending: true,
@@ -60,7 +61,7 @@ export default (state = initialState, action) => {
       };
     }
     case 'PATCH_ADDRESS_FULFILLED': {
-      const { data, success, message } = action.payload.data;
+      const {success, message} = action.payload.data;
       if (success) {
         return {
           ...state,
@@ -77,13 +78,15 @@ export default (state = initialState, action) => {
         isError: true,
         isUpdated: false,
       };
-    } case 'CREATE_ADDRESS_PENDING': {
+    }
+    case 'CREATE_ADDRESS_PENDING': {
       return {
         ...state,
         isPending: true,
         isError: false,
       };
-    } case 'CREATE_ADDRESS_REJECTED': {
+    }
+    case 'CREATE_ADDRESS_REJECTED': {
       return {
         ...state,
         isPending: false,
@@ -92,7 +95,7 @@ export default (state = initialState, action) => {
       };
     }
     case 'CREATE_ADDRESS_FULFILLED': {
-      const { success, message } = action.payload.data;
+      const {success, message} = action.payload.data;
       if (success) {
         return {
           ...state,
@@ -109,7 +112,8 @@ export default (state = initialState, action) => {
         isError: true,
         isAdded: false,
       };
-    } default: {
+    }
+    default: {
       return {
         ...state,
       };

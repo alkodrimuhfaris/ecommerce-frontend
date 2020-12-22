@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import {combineReducers} from 'redux';
 
 import auth from './auth';
 import signup from './signup';
@@ -8,9 +8,26 @@ import cart from './cart';
 import address from './address';
 import modalButton from './modalButton';
 import home from './home';
+import admin from './admin';
+import adminDelete from './adminDelete';
+import adminUpdate from './adminUpdate';
+import searchQuery from './searchQuery';
+import category from './category';
 
 console.log(auth);
 
 export default combineReducers({
-  auth, signup, profile, items, cart, address, modalButton, home,
+  auth,
+  signup,
+  profile,
+  items,
+  cart,
+  address,
+  modalButton,
+  home,
+  admin,
+  adminDelete,
+  adminUpdate,
+  searchQuery,
+  category,
 });

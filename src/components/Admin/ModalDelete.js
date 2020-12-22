@@ -1,26 +1,37 @@
 import React from 'react';
-import {default as axios} from 'axios';
 import {
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
   Button,
-  Container
+  Container,
 } from 'reactstrap';
+import {connect} from 'react-redux';
+import adminAction from '../../redux/actions/admin';
+import ModalLoading from '../ModalLoading';
 
-class ModalDelete extends React.Component{
-  deleteItem = async (url) => {
-    const del = await axios.delete(url)
-    const message = `${this.props.dataItem.name} has been deleted from the list`
-    this.props.modalCloseDelete('del')
-    this.props.modalCloseDelete('dtl')
-    window.alert(message)
+class ModalDelete extends React.Component {
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.adminDelete.deleteItemPending !==
+      this.props.adminDelete.deleteItemPending
+    ) {
+      if (this.props.adminDelete.deleteItemSuccess) {
+        this.props.modalCloseDelete('del');
+        // eslint-disable-next-line no-undef
+        alert(`${this.props.deleteName} has been deleted from the list`);
+      }
+    }
   }
 
-  render(){
-    return(
-      <React.Fragment>
+  deleteItem = () => {
+    this.props.deleteItem(this.props.auth.token, this.props.item_id);
+  };
+
+  render() {
+    return (
+      <>
         {/* modal for delete */}
         <Modal isOpen={this.props.modalOpenDelete}>
           <ModalHeader>Delete Item</ModalHeader>
@@ -28,21 +39,46 @@ class ModalDelete extends React.Component{
             <Container>
               <div>
                 <div className="d-flex align-items-center justify-content-center">
-                  <span className='text-center'>Are you sure want to delete {this.props.dataItem.name} on the list?</span>
+                  <span className="text-center">
+                    Are you sure want to delete {this.props.deleteName} on the
+                    list?
+                  </span>
                 </div>
-                <div className='d-flex justify-content-center'>
-                  <Button color="danger" onClick={ () => this.deleteItem(this.props.url)} className = "rounded-pill">DELETE</Button>
+                <div className="d-flex justify-content-center">
+                  <Button
+                    color="danger"
+                    onClick={() => this.deleteItem(this.props.url)}
+                    className="rounded-pill">
+                    DELETE
+                  </Button>
+                  <ModalLoading
+                    modalOpen={this.props.adminDelete.deleteItemPending}
+                  />
                 </div>
               </div>
             </Container>
           </ModalBody>
           <ModalFooter>
-            <Button color="danger" onClick={ () => this.props.modalCloseDelete('del')} className = "rounded-pill">Close</Button>
+            <Button
+              color="danger"
+              onClick={() => this.props.modalCloseDelete('del')}
+              className="rounded-pill">
+              Close
+            </Button>
           </ModalFooter>
         </Modal>
-      </React.Fragment>
-    )
+      </>
+    );
   }
 }
 
-export default ModalDelete
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+  adminDelete: state.adminDelete,
+});
+
+const mapDispatchToProps = {
+  deleteItem: adminAction.deleteItem,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ModalDelete);

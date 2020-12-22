@@ -1,105 +1,187 @@
 const initialState = {
   dataNewItems: [],
   pageInfoNewItems: {},
+  newItemPending: false,
+  newItemError: false,
+  newItemSuccess: false,
+  newItemMessage: '',
+
   dataPopularItems: [],
   pageInfoPopularItems: {},
-  detailItem: [],
-  detailColorItem: [],
-  isLoading: false,
-  isError: false,
-  alertMsg: ''
-}
+  popularPending: false,
+  popularError: false,
+  popularSuccess: false,
+  popularMessage: '',
 
-export default (state=initialState, action)=>{
-  switch(action.type){
-    case 'GET_NEW_ITEMS_PENDING' : {
+  detailItem: [],
+  detailItemPending: false,
+  detailItemError: false,
+  detailItemSuccess: false,
+  detailItemMessage: '',
+
+  detailColorItem: [],
+
+  detailColorPending: false,
+  detailColorError: false,
+  detailColorSuccess: false,
+  detailColorMessage: '',
+
+  searchData: [],
+  searchPageInfo: {},
+  searchIsPending: false,
+  searchIsError: false,
+  searchIsSuccess: false,
+  searchMessage: '',
+};
+
+export default (state = initialState, action) => {
+  switch (action.type) {
+    case 'SEARCH_ITEM_PENDING': {
       return {
         ...state,
-        isLoading: true
-      }
+        searchIsPending: true,
+        searchIsError: false,
+        searchIsSuccess: false,
+        searchMessage: 'searching item..',
+      };
+    }
+    case 'SEARCH_ITEM_REJECTED': {
+      return {
+        ...state,
+        searchIsPending: false,
+        searchIsError: true,
+        searchIsSuccess: false,
+        searchMessage: 'search item rejected',
+      };
+    }
+    case 'SEARCH_ITEM_FULFILLED': {
+      return {
+        ...state,
+        searchData: action.payload.data.results,
+        searchPageInfo: action.payload.data.pageInfo,
+        searchIsPending: false,
+        searchIsError: false,
+        searchIsSuccess: true,
+        searchMessage: 'search item successfull',
+      };
+    }
+    case 'GET_NEW_ITEMS_PENDING': {
+      return {
+        ...state,
+        newItemPending: true,
+        newItemError: false,
+        newItemSuccess: false,
+        newItemMessage: 'Getting new items...',
+      };
     }
     case 'GET_NEW_ITEMS_REJECTED': {
       return {
         ...state,
-        isLoading: false,
-        isError: true,
-        alertMsg: 'There is an error at request data'
-      }
+        newItemPending: false,
+        newItemError: false,
+        newItemSuccess: true,
+        alertMsg: 'There is an error at request data',
+      };
     }
     case 'GET_NEW_ITEMS_FULFILLED': {
       return {
         ...state,
-        isLoading: false,
-        dataNewItems: action.payload.data.data,
-        pageInfoNewItems: action.payload.data.pageInfo
-      }
+        dataNewItems: action.payload.data.results,
+        pageInfoNewItems: action.payload.data.pageInfo,
+        newItemPending: false,
+        newItemError: false,
+        newItemSuccess: true,
+        newItemMessage: 'Success Get New Items',
+      };
     }
-    case 'GET_POPULAR_ITEMS_PENDING' : {
+    case 'GET_POPULAR_ITEMS_PENDING': {
       return {
         ...state,
-        isLoading: true
-      }
+        popularPending: false,
+        popularError: false,
+        popularSuccess: true,
+        popularMessage: 'Getting popular items...',
+      };
     }
     case 'GET_POPULAR_ITEMS_REJECTED': {
       return {
         ...state,
-        isLoading: false,
-        isError: true,
-        alertMsg: 'There is an error at request data'
-      }
+        popularPending: false,
+        popularError: true,
+        popularSuccess: false,
+        popularMessage: 'There is an error at request data',
+      };
     }
     case 'GET_POPULAR_ITEMS_FULFILLED': {
       return {
         ...state,
-        isLoading: false,
+        popularPending: false,
+        popularError: false,
+        popularSuccess: true,
+        popularMessage: 'Success getting popular items',
         dataPopularItems: action.payload.data.data,
-        pageInfoPopularItems: action.payload.data.pageInfo
-      }
+        pageInfoPopularItems: action.payload.data.pageInfo,
+      };
     }
-    case 'GET_DETAIL_ITEM_PENDING' : {
+    case 'GET_DETAIL_ITEM_PENDING': {
       return {
         ...state,
-        isLoading: true
-      }
+        detailItemPending: true,
+        detailItemError: false,
+        detailItemSuccess: false,
+        detailItemMessage: 'Getting item detail...',
+      };
     }
-    case 'GGET_DETAIL_ITEM_REJECTED': {
+    case 'GET_DETAIL_ITEM_REJECTED': {
       return {
         ...state,
-        isLoading: false,
-        isError: true,
-        alertMsg: 'There is an error at request data'
-      }
+        detailItemPending: false,
+        detailItemError: true,
+        detailItemSuccess: false,
+        detailItemMessage: 'There is an error at request data',
+      };
     }
     case 'GET_DETAIL_ITEM_FULFILLED': {
       return {
         ...state,
-        isLoading: false,
-        detailItem: action.payload.data
-      }
+        detailItem: action.payload.data.dataItem,
+        detailColorItem: action.payload.data.productDetails,
+        detailItemPending: false,
+        detailItemError: false,
+        detailItemSuccess: true,
+        detailItemMessage: 'Get detail item success',
+      };
     }
-    case 'GET_DETAIL_COLOR_ITEM_PENDING' : {
+    case 'GET_DETAIL_COLOR_ITEM_PENDING': {
       return {
         ...state,
-        isLoading: true
-      }
+        detailColorPending: true,
+        detailColorError: false,
+        detailColorSuccess: false,
+        detailColorMessage: 'Getting detail color item...',
+      };
     }
-    case 'GGET_DETAIL_COLOR_ITEM_REJECTED': {
+    case 'GET_DETAIL_COLOR_ITEM_REJECTED': {
       return {
         ...state,
-        isLoading: false,
-        isError: true,
-        alertMsg: 'There is an error at request data'
-      }
+        detailColorPending: false,
+        detailColorError: true,
+        detailColorSuccess: false,
+        detailColorMessage: 'There is an error at request data',
+      };
     }
     case 'GET_DETAIL_COLOR_ITEM_FULFILLED': {
       return {
         ...state,
-        isLoading: false,
-        detailColorItem: action.payload.data.data
-      }
+        detailColorPending: false,
+        detailColorError: false,
+        detailColorSuccess: true,
+        detailColorMessage: 'Get detail color success',
+        detailColorItem: action.payload.data,
+      };
     }
-    default : {
-      return state
+    default: {
+      return state;
     }
   }
-}
+};

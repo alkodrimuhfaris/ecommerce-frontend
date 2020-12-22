@@ -1,0 +1,18 @@
+.avatar {
+  top: 50%;
+  left:50%;
+  transform: translate(-50%, -50%);
+}
+
+.drop-down-toggle {
+  width: 2em;
+  height: 2em;
+  background-color:#fff;
+  border:none;
+}
+
+.drop-down-menu {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+}

@@ -1,20 +1,25 @@
-import services from '../../helpers/services'
+import qs from 'qs';
+import services from '../../helpers/services';
 
 export default {
-  getNewItems: (page, limit)=>({
+  getNewItems: (page, limit) => ({
     type: 'GET_NEW_ITEMS',
-    payload: services().get('/public/new', {params:{page, limit}})
+    payload: services().get(`/public/new?${qs.stringify({page, limit})}`),
   }),
-  getPopularItems: (page, limit)=>({
+  getPopularItems: (page, limit) => ({
     type: 'GET_POPULAR_ITEMS',
-    payload: services().get('/public/popular', {params:{page, limit}})
+    payload: services().get(`/public/popular?$${qs.stringify({page, limit})}`),
   }),
-  getDetailItem: (itemId, page=1, limit='-')=>({
+  getDetailItem: (itemId) => ({
     type: 'GET_DETAIL_ITEM',
-    payload: services().get('/public/products/'+itemId, {params:{page, limit}})
+    payload: services().get(`/public/products/${itemId}`),
   }),
-  getDetailColorItem: (detailItemId)=>({
+  searchItem: (query) => ({
+    type: 'SEARCH_ITEM',
+    payload: services().get(`/public/products?${qs.stringify(query)}`),
+  }),
+  getDetailColorItem: (detailItemId) => ({
     type: 'GET_DETAIL_COLOR_ITEM',
-    payload: services().get('/public/products/detail/'+detailItemId)
-  })
-}
+    payload: services().get(`/public/products/detail/${detailItemId}`),
+  }),
+};

@@ -1,0 +1,27 @@
+.picture-product-show-wrapper {
+  width: 100%;
+  padding-top: 100%;
+  background-color: black;
+  overflow: hidden;
+}
+
+.picture-product {
+  width: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.picture-selector-wrapper {
+  width: 90%;
+  padding-top: 100%;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+.image-selector {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
