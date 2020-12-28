@@ -21,7 +21,7 @@ class NavBar extends Component {
 
   render() {
     return (
-      <Navbar className="bg-success text-white" dark expand="md">
+      <Navbar className="text-white" dark expand="md">
         <Container>
           <NavbarBrand>Tuku-Admin</NavbarBrand>
           <NavbarToggler

@@ -1,44 +1,91 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Container,
-  Col,
-  Row,
-  Media,
-  Nav,
-  NavItem,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  FormText,
-} from 'reactstrap';
+import {Container, Col, Row, Media, Nav, NavItem} from 'reactstrap';
 import {Link, useHistory, useLocation} from 'react-router-dom';
 import {useSelector, useDispatch} from 'react-redux';
 import {FaPencilAlt, FaRegClipboard} from 'react-icons/fa';
+import {FiUser} from 'react-icons/fi';
 import {BiMap} from 'react-icons/bi';
 import profileAction from '../../redux/actions/profile';
 import NavBarClient from '../NavBarClient';
-import userIcon from '../../Assets/icons/user.svg';
 import ProfileComponent from './ProfileComponent';
 import AddressComponent from './AddressComponent';
+import useWindowDimension from '../Helpers/useWindowDimension';
+import placeholder from '../../Assets/images/profile.jpg';
 
-export default function Profile(props) {
+export default function Profile() {
+  const {md, lg} = useWindowDimension();
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.profile.userData);
   const userUpdated = useSelector((state) => state.profile.isUpdated);
   const dispatch = useDispatch();
+  const history = useHistory();
   const thisPath = useLocation().pathname;
-
   const [name, setName] = useState('');
   const [showAvatar, setShowAvatar] = useState('');
+  const [choosenPath, setChoosenPath] = useState(0);
 
   useEffect(() => {
-    dispatch(profileAction.getProfile(token));
+    switch (thisPath) {
+      case '/profile': {
+        setChoosenPath(0);
+        break;
+      }
+      case '/address': {
+        setChoosenPath(1);
+        break;
+      }
+      case '/orders': {
+        setChoosenPath(2);
+        break;
+      }
+      default: {
+        setChoosenPath(0);
+        break;
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userUpdated) {
+      dispatch(profileAction.getProfile(token));
+    }
+  }, [token, userUpdated]);
+
+  useEffect(() => {
     setName(user.name);
     setShowAvatar(
-      user.avatar && `${process.env.REACT_APP_URL_BACKEND}/${user.avatar}`,
+      user.avatar
+        ? `${process.env.REACT_APP_URL_BACKEND}/${user.avatar}`
+        : placeholder,
     );
-  }, [dispatch, token, user, userUpdated]);
+  }, [user]);
+
+  const linkArr = [
+    {
+      name: 'My Profile',
+      path: '/profile',
+      Icon: ({color}) => (
+        <FiUser color={color} className="rounded-circle img-center" />
+      ),
+      bgColor: {backgroundColor: '#456BF3'},
+    },
+    {
+      name: 'Shipping Address',
+      path: '/address',
+      Icon: ({color}) => (
+        <BiMap color={color} className="rounded-circle img-center" />
+      ),
+      bgColor: {backgroundColor: '#F36F45'},
+    },
+    {
+      name: 'My Orders',
+      path: '/profile',
+      Icon: ({color}) => (
+        <FaRegClipboard color={color} className="rounded-circle img-center" />
+      ),
+      bgColor: {backgroundColor: '#F3456F'},
+    },
+  ];
 
   const component = (className = 'my-3') => {
     switch (thisPath) {
@@ -83,107 +130,93 @@ export default function Profile(props) {
     },
   };
 
+  const goToProfile = (e, index, path) => {
+    e.preventDefault();
+    setChoosenPath(index);
+    history.push(path);
+  };
+
   return (
     <>
       <NavBarClient />
       <Row style={{width: '100%', margin: '0'}}>
-        <Col xs="12" md="3" className="py-2 px-4">
-          <Media className="align-items-center my-3">
-            <Media left>
-              <div className="position-relative border-circle square3p5em">
-                <Media
-                  object
-                  src={showAvatar || 'https://via.placeholder.com/50'}
-                  className="rounded-circle img-fluid img-center"
-                />
-              </div>
-            </Media>
-            <Media body className="ml-3">
-              <div className="strong h5">{name}</div>
-              <div className="text-muted small">
-                <span>
-                  <FaPencilAlt />
-                </span>{' '}
-                Ubah profil
-              </div>
-            </Media>
-          </Media>
-          <Nav vertical>
-            <NavItem>
-              <Media className="align-items-center my-1">
-                <Media
-                  left
-                  className="position-relative square-1-5em rounded-circle"
-                  style={{backgroundColor: '#456BF3'}}>
+        <Col
+          xs="12"
+          md="3"
+          className={`py-2 px-4 ${
+            md ? 'fixed-bottom justify-content-around w-100 bg-white' : null
+          }`}>
+          {!md ? (
+            <Media className="align-items-center my-3">
+              <Media left>
+                <div className="position-relative border-circle square3p5em">
                   <Media
                     object
-                    src={userIcon}
-                    className="rounded-circle img-center"
+                    src={showAvatar}
+                    className="rounded-circle img-fluid img-center"
                   />
-                </Media>
-                <Link
-                  to="/profile"
-                  style={{textDecoration: 'none'}}
-                  className="text-dark">
-                  <Media body className="ml-2">
-                    <div
-                      className={
-                        thisPath === '/profile'
-                          ? 'small font-weight-bold'
-                          : 'small'
-                      }>
-                      My account
-                    </div>
-                  </Media>
-                </Link>
+                </div>
               </Media>
-            </NavItem>
-            <NavItem>
-              <Media className="align-items-center my-1">
-                <Media
-                  left
-                  className="position-relative square-1-5em rounded-circle"
-                  style={{backgroundColor: '#F36F45'}}>
-                  <BiMap color="white" className="rounded-circle img-center" />
-                </Media>
-                <Link
-                  to="/address"
-                  style={{textDecoration: 'none'}}
-                  className="text-dark">
-                  <Media body className="ml-2">
-                    <div
-                      className={
-                        thisPath === '/address'
-                          ? 'small font-weight-bold'
-                          : 'small'
-                      }>
-                      Shipping address
-                    </div>
-                  </Media>
-                </Link>
+              <Media body className="ml-3">
+                <div className="strong h5">{name}</div>
+                <div className="text-muted small">
+                  <span>
+                    <FaPencilAlt />
+                  </span>{' '}
+                  Ubah profil
+                </div>
               </Media>
-            </NavItem>
-            <NavItem>
-              <Media className="align-items-center my-1">
-                <Media
-                  left
-                  className="position-relative square-1-5em rounded-circle"
-                  style={{backgroundColor: '#F3456F'}}>
-                  <FaRegClipboard
-                    color="white"
-                    className="rounded-circle img-center"
-                  />
-                </Media>
-                <Link
-                  to="/profile"
-                  style={{textDecoration: 'none'}}
-                  className="text-dark">
-                  <Media body className="ml-2">
-                    <div className="small strong">My Orders</div>
+            </Media>
+          ) : null}
+          <Nav vertical={!md} horizontal={md} className="row">
+            {linkArr.map((item, index) => {
+              const {name: pathName, path, Icon, bgColor} = item;
+              // eslint-disable-next-line no-nested-ternary
+              const color = !lg
+                ? 'white'
+                : index === choosenPath
+                ? 'white'
+                : 'black';
+              // eslint-disable-next-line no-nested-ternary
+              const background = !lg
+                ? bgColor
+                : index === choosenPath
+                ? {backgroundColor: '#457373'}
+                : {backgroundColor: 'white'};
+
+              return (
+                <NavItem className="col-4 col-md-12">
+                  <Media className="align-items-center my-2 w-100">
+                    <Link
+                      onClick={(e) => goToProfile(e, index, path)}
+                      to="/profile"
+                      style={{textDecoration: 'none'}}
+                      className={`d-flex align-items-center ${
+                        lg ? 'w-100 flex-column justify-content-center' : ''
+                      }`}>
+                      <Media
+                        left
+                        className="position-relative square-1-5em rounded-circle"
+                        style={background}>
+                        <Icon color={color} />
+                      </Media>
+                      {!lg ? (
+                        <Media body className="ml-2">
+                          <text
+                            className={
+                              choosenPath === index
+                                ? 'small text-dark font-weight-bold'
+                                : 'small text-dark '
+                            }>
+                            {pathName}
+                          </text>
+                        </Media>
+                      ) : null}
+                    </Link>
                   </Media>
-                </Link>
-              </Media>
-            </NavItem>
+                </NavItem>
+              );
+            })}
           </Nav>
         </Col>
         <Col

@@ -3,10 +3,7 @@ import {Modal, ModalBody, Spinner} from 'reactstrap';
 
 export default function ModalLoading({modalOpen = false}) {
   return (
-    <Modal
-      isOpen={modalOpen}
-      size="sm"
-      style={{maxWidth: '200px', backgroundColor: 'transparent'}}>
+    <Modal isOpen={modalOpen} size="sm">
       <ModalBody>
         <div
           className="d-flex align-items-center justify-content-center"
@@ -16,7 +13,7 @@ export default function ModalLoading({modalOpen = false}) {
             backgroundColor: 'transparent',
             aspectRatio: 1 / 1,
           }}>
-          <Spinner color="success" />
+          <Spinner color={process.env.REACT_APP_THEME_MAIN} />
         </div>
       </ModalBody>
     </Modal>

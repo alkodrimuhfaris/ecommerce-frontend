@@ -76,9 +76,9 @@ class ModalUpdate extends React.Component {
       ...provided,
       // eslint-disable-next-line no-nested-ternary
       borderColor: state.selectProps.error
-        ? '#dc3545'
+        ? '#7C4935'
         : state.selectProps.touched
-        ? '#5cb85c'
+        ? '#457373'
         : 'rgba(0,0,0,.2)',
     }),
   };
@@ -90,37 +90,63 @@ class ModalUpdate extends React.Component {
       categoryOpt: [],
       colorOpt: [],
       conditionOpt: [],
-      conditionSelected: {},
-      item: {},
+      conditionSelected: {
+        value: '',
+      },
+      item: {
+        name: '',
+        price: 0,
+        stock: 0,
+        description: '',
+        weight: 0,
+      },
       itemDetails: [{...this.itemDetailObj}],
-      category: {},
+      category: {
+        value: '',
+      },
       image: [
         {
           product_image: '',
           name: '',
-          file: {},
+          file: undefined,
         },
         {
           product_image: '',
           name: '',
-          file: {},
+          file: undefined,
         },
         {
           product_image: '',
           name: '',
-          file: {},
+          file: undefined,
         },
         {
           product_image: '',
           name: '',
-          file: {},
+          file: undefined,
         },
       ],
       availableTest: true,
       imageTest: true,
       arrayHelpers: [],
+      idDetailDelete: null,
       indexSelected: null,
       modalDelete: false,
+      notifDel: false,
+      notifDetail: false,
+      notifUpdate: false,
+      oversizeNotif: false,
+      oversizeNotifProps: {
+        title: 'Warning!',
+        content: 'File should be less than 500 kb!',
+        close: () => {
+          this.setState({oversizeNotif: false});
+        },
+        confirm: () => {
+          this.setState({oversizeNotif: false});
+        },
+      },
+      propsNotifUpdate: {},
     };
   }
 
@@ -128,9 +154,17 @@ class ModalUpdate extends React.Component {
     this.props.getCategories();
     this.props.getAllColors();
     this.props.getCondition(this.props.auth.token);
+    if (this.props.item_id) {
+      this.props.getThisItem(this.props.auth.token, this.props.item_id);
+    }
   }
 
-  componentDidUpdate(previousProps) {
+  componentDidUpdate(previousProps, previousState) {
+    if (previousProps.item_id !== this.props.item_id) {
+      if (this.props.item_id) {
+        this.props.getThisItem(this.props.auth.token, this.props.item_id);
+      }
+    }
     if (previousProps.categories !== this.props.categories) {
       const categoryOpt = this.props.categories.map((item) => {
         item = {
@@ -177,6 +211,8 @@ class ModalUpdate extends React.Component {
       console.log('update colorOpt');
     }
     if (previousProps.itemData !== this.props.itemData) {
+      console.log('update item data');
+      console.log(this.props.itemData);
       // eslint-disable-next-line prefer-const
       let {item, category, itemDetails} = this.props.itemData;
 
@@ -192,14 +228,17 @@ class ModalUpdate extends React.Component {
           'product_image_4',
         ].forEach((imgName) => {
           test = imgName === key;
+          if (test) {
+            image.push({
+              product_image: val
+                ? `${process.env.REACT_APP_URL_BACKEND}/${val}`
+                : '',
+              name: val ? key : '',
+              file: undefined,
+              fromDB: val ? true : undefined,
+            });
+          }
         });
-        if (test) {
-          image.push({
-            product_image: `${process.env.REACT_APP_URL_BACKEND}/${val}`,
-            name: key,
-            file: {},
-          });
-        }
       });
 
       // update item detail
@@ -208,6 +247,7 @@ class ModalUpdate extends React.Component {
             id: det.id,
             colorName: det.name,
             hex: det.hex,
+            available: det.available,
           }))
         : [];
       category = {
@@ -229,6 +269,7 @@ class ModalUpdate extends React.Component {
       // set up state
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({
+        item,
         image,
         itemDetails,
         category,
@@ -240,11 +281,53 @@ class ModalUpdate extends React.Component {
       this.props.adminUpdate.updateItemPending
     ) {
       if (this.props.adminUpdate.updateItemSuccess) {
-        // eslint-disable-next-line no-alert
-        // eslint-disable-next-line no-undef
-        alert('success update item!');
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({
+          propsNotifUpdate: {
+            close: () => {
+              this.setState({
+                notifUpdate: false,
+              });
+            },
+            confirm: () => {
+              this.setState({
+                notifUpdate: false,
+              });
+            },
+            title: 'Success!',
+            content: 'Success update item!',
+          },
+        });
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({
+          notifUpdate: true,
+        });
         this.props.getThisItem(this.props.auth.token, this.props.item_id);
-        this.props.getAdminItems(this.props.auth.token, this.props.query);
+        this.props.getAllItem(this.props.auth.token, this.props.query);
+      } else if (this.props.adminUpdate.updateItemError) {
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({
+          propsNotifUpdate: {
+            close: () => {
+              this.setState({
+                notifUpdate: false,
+              });
+            },
+            confirm: () => {
+              this.setState({
+                notifUpdate: false,
+              });
+            },
+            title: 'Error!',
+            content: 'Failed to update item!',
+          },
+        });
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({
+          notifUpdate: true,
+        });
+        this.props.getThisItem(this.props.auth.token, this.props.item_id);
+        this.props.getAllItem(this.props.auth.token, this.props.query);
       }
     }
     if (
@@ -254,10 +337,9 @@ class ModalUpdate extends React.Component {
       if (this.props.admin.deleteItemDetailSuccess) {
         // eslint-disable-next-line react/no-did-update-set-state
         this.setState({
-          modalDelete: false,
+          notifDetail: true,
         });
         // eslint-disable-next-line no-undef
-        alert('success delete item detail!');
       }
     }
     if (
@@ -267,11 +349,13 @@ class ModalUpdate extends React.Component {
       if (this.props.admin.deleteItemDetailSuccess) {
         // eslint-disable-next-line react/no-did-update-set-state
         this.setState({
-          modalDelete: false,
+          notifDel: true,
         });
-        // eslint-disable-next-line no-undef
-        alert('success delete item detail!');
       }
+    }
+    if (previousState.image !== this.state.image) {
+      console.log('ini image ketika rerender');
+      console.log(this.state.image);
     }
   }
 
@@ -284,20 +368,36 @@ class ModalUpdate extends React.Component {
     });
   };
 
+  // delete item details
+
+  openDeleteDetail = (id, index, arrayHelpers) => {
+    this.setState({
+      idDetailDelete: id,
+      arrayHelpers,
+      indexSelected: index,
+      modalDelete: true,
+    });
+  };
+
   handleDeleteImage = () => {
     // eslint-disable-next-line react/no-access-state-in-setstate
     const image = [...this.state.image];
-    this.props.deleteImage(this.props.item_id, this.state.imgDelIndx + 1);
-    image[this.state.imgDelIndx] = {
+    const {fromDB} = image[this.state.imgDelIndx - 1];
+    image[this.state.imgDelIndx - 1] = {
       product_image: '',
       name: '',
-      file: {},
+      file: undefined,
     };
-    this.props.deleteImage(this.props.item_id, this.state.imgDelIndx + 1);
+    if (fromDB) {
+      this.props.deleteImage(
+        this.props.auth.token,
+        this.props.item_id,
+        this.state.imgDelIndx,
+      );
+    }
     this.setState({image, imgDel: false});
     // eslint-disable-next-line no-alert
     // eslint-disable-next-line no-undef
-    alert('Image deleted!');
   };
 
   closeDeleteImage = () => {
@@ -309,7 +409,11 @@ class ModalUpdate extends React.Component {
   // delete item details
 
   deleteDetail = () => {
-    this.props.deleteItemDetail(this.props.item_id, this.state.indexSelected);
+    this.props.deleteItemDetail(
+      this.props.auth.token,
+      this.props.item_id,
+      this.state.idDetailDelete,
+    );
     this.state.arrayHelpers.remove(this.state.indexSelected);
     this.setState({
       modalDelete: false,
@@ -346,12 +450,6 @@ class ModalUpdate extends React.Component {
 
   handleUpdate = (values) => {
     const val = {...values};
-    let imageTest = true;
-    imageTest = !!this.state.image[0].product_image;
-    this.setState({
-      imageTest,
-    });
-    console.log(imageTest);
     let availableTest = true;
     values.detailArr.forEach((item) => {
       availableTest = item.available;
@@ -361,15 +459,20 @@ class ModalUpdate extends React.Component {
     });
     console.log(availableTest);
     console.log(values);
-    if (imageTest && availableTest) {
+    if (availableTest) {
       // eslint-disable-next-line no-undef
       const data = new FormData();
+      console.log(this.state.image);
       // eslint-disable-next-line no-restricted-syntax
       for (const image of this.state.image) {
-        if (Object.keys(image.file).length) {
-          // eslint-disable-next-line no-await-in-loop
-          data.append('product_image[]', image.file);
-        }
+        // eslint-disable-next-line no-await-in-loop
+        data.append('product_image', image.file);
+        const name = image.file ? image.name : '';
+        data.append('imageOrder', name);
+      }
+      // eslint-disable-next-line no-restricted-syntax
+      for (const value of data.values()) {
+        console.log(value);
       }
       const detailArr = val.detailArr.length
         ? qs.stringify({detailArr: [...val.detailArr]})
@@ -379,7 +482,7 @@ class ModalUpdate extends React.Component {
       for (const [key, value] of Object.entries(val)) {
         data.append(key, value);
       }
-      this.props.updateItem(this.props.auth.token, data);
+      this.props.updateItem(this.props.auth.token, this.props.item_id, data);
     }
   };
 
@@ -390,17 +493,20 @@ class ModalUpdate extends React.Component {
     this.props.modalCloseUpdate('updt');
   };
 
+  switchChange = (e, name, setValue) => {
+    setValue(name, !e);
+  };
+
   onImageChange = (event, index) => {
     if (event.target.files && event.target.files[0]) {
       const image = [...this.state.image];
       const [file] = event.target.files;
       if (file.size > 500 * 1024) {
-        // eslint-disable-next-line no-undef
-        alert('file should be less than 500 kB!');
+        this.setState({oversizeNotif: true});
       } else {
         image[index] = {
           product_image: URL.createObjectURL(file),
-          name: file.name,
+          name: `product_image_${index + 1}`,
           file,
         };
         console.log(event.target.value);
@@ -424,30 +530,29 @@ class ModalUpdate extends React.Component {
     return (
       <>
         {/* modal for post new */}
-        <Modal
-          isOpen={this.props.modalOpenUpdate}
-          size="lg"
-          style={{maxWidth: '1600px', width: '80%'}}>
+        <Modal isOpen={this.props.modalOpenUpdate} size="lg">
+          {/* modal loading */}
+          <ModalLoading modalOpen={this.props.admin.getItemDetailsPending} />
+
           <ModalHeader>{item.name}</ModalHeader>
           <ModalBody>
             {/* eslint-disable-next-line react/prop-types */}
             <Formik
+              enableReinitialize
               initialValues={{
-                name: item.name ? item.name : '',
-                price: item.price ? item.price : 0,
-                stock: item.stock ? item.stock : 0,
-                categoryName: category.value ? category.value : '',
-                description: item.description ? item.description : '',
-                weight: item.weight ? item.weight : '',
-                condition_id: conditionSelected.value
-                  ? conditionSelected.value
-                  : 0,
+                name: item.name,
+                price: item.price,
+                stock: item.stock,
+                categoryName: category.value,
+                description: item.description,
+                weight: item.weight,
+                condition_id: conditionSelected.value,
                 detailArr: [...itemDetails],
               }}
               validationSchema={schemaItem}
               validateOnBlur
               onSubmit={(values) => {
-                this.handleAdd(values);
+                this.handleUpdate(values);
               }}>
               {(props) => {
                 const {
@@ -462,6 +567,7 @@ class ModalUpdate extends React.Component {
 
                 return (
                   <Form onSubmit={handleSubmit}>
+                    <h3 className="text-success">Item Detail</h3>
                     <FormGroup>
                       <Label for="name">Item&apos;s name</Label>
                       <Input
@@ -486,10 +592,14 @@ class ModalUpdate extends React.Component {
                           <CreatableSelect
                             tag={Field}
                             id="categoryName"
+                            value={category}
                             styles={this.selectStyle}
                             error={errors.categoryName}
                             touched={values.categoryName}
                             onChange={(e) => {
+                              this.setState({
+                                category: e,
+                              });
                               this.optionChange(
                                 e,
                                 setFieldValue,
@@ -511,10 +621,14 @@ class ModalUpdate extends React.Component {
                           <Select
                             tag={Field}
                             id="condition_id"
+                            value={conditionSelected}
                             styles={this.selectStyle}
                             error={errors.condition_id}
                             touched={values.condition_id}
                             onChange={(e) => {
+                              this.setState({
+                                conditionSelected: e,
+                              });
                               this.optionChange(
                                 e,
                                 setFieldValue,
@@ -616,7 +730,12 @@ class ModalUpdate extends React.Component {
                     </FormGroup>
 
                     {/* add images */}
+                    <h3 className="text-success">Product Image</h3>
                     <div className="row">
+                      <ModalConfirm
+                        modalOpen={this.state.oversizeNotif}
+                        {...this.state.oversizeNotifProps}
+                      />
                       {this.state.image.map((image, index) => (
                         <div className="p-3 col-6">
                           <div
@@ -635,31 +754,33 @@ class ModalUpdate extends React.Component {
                               </text>
                             </div>
                             <div className="position-relative image-wrapper">
-                              {Object.keys(
-                                this.state.image[index].product_image,
-                              ).length ? (
+                              {image.product_image ? (
                                 <button
                                   type="button"
-                                  onClick={() => this.openDeleteImage(index)}
+                                  onClick={() =>
+                                    this.openDeleteImage(index + 1)
+                                  }
                                   className="btn close-btn">
                                   <AiFillCloseCircle color="white" size="1em" />
                                 </button>
                               ) : null}
-                              <ModalConfirm
+                              {/* <ModalConfirm
                                 modalOpen={this.state.imgDel}
                                 close={this.closeDeleteImage}
                                 confirm={this.handleDeleteImage}
-                              />
+                              /> */}
                               <img
                                 className="position-absolute img-fluid center-img"
                                 src={
-                                  item.product_image
-                                    ? item.product_image
+                                  image.product_image
+                                    ? image.product_image
                                     : placeholderImage
                                 }
-                                alt={`${
-                                  Object.keys(item.product_image)[0]
-                                }_${index}`}
+                                alt={
+                                  image.name
+                                    ? image.name
+                                    : `product_image_${index + 1}`
+                                }
                               />
                             </div>
                             <label
@@ -690,6 +811,16 @@ class ModalUpdate extends React.Component {
                     </div>
 
                     {/* add item details */}
+                    <h3 id="item-detail" className="mt-3 mb-1 text-success">
+                      Item Color
+                    </h3>
+                    <Tooltip
+                      isOpen={!this.state.availableTest}
+                      placement="top"
+                      target="item-detail">
+                      {/* eslint-disable-next-line react/prop-types */}
+                      At least one should be available!
+                    </Tooltip>
                     <FieldArray
                       name="detailArr"
                       render={(arrayHelpers) => (
@@ -698,141 +829,139 @@ class ModalUpdate extends React.Component {
                           values.detailArr &&
                           values.detailArr.length > 0 ? (
                             <div>
-                              <div id="item-detail">
-                                {values.detailArr.map((detailArr, index) => (
-                                  <div key={index}>
-                                    <Row form>
-                                      <Col md={4} xs={4}>
-                                        <FormGroup>
-                                          <Label
-                                            for={`detailArr.${index}.colorName`}>
-                                            Color Name
-                                          </Label>
-                                          <CreatableSelect
-                                            tag={Field}
-                                            id={`detailArr[${index}].colorName`}
-                                            styles={this.selectStyle}
-                                            error={getIn(
-                                              errors,
-                                              `detailArr[${index}].colorName`,
-                                            )}
-                                            touched={getIn(
-                                              touched,
-                                              `detailArr[${index}].colorName`,
-                                            )}
-                                            onChange={(e) => {
-                                              this.handleChangeColor(
-                                                e,
-                                                index,
-                                                setFieldValue,
-                                              );
-                                            }}
-                                            options={this.state.colorOpt}
-                                          />
-                                          {getIn(
+                              {values.detailArr.map((detailArr, index) => (
+                                <div key={index}>
+                                  <Row form>
+                                    <Col md={4} xs={4}>
+                                      <FormGroup>
+                                        <Label
+                                          for={`detailArr.${index}.colorName`}>
+                                          Color Name
+                                        </Label>
+                                        <CreatableSelect
+                                          tag={Field}
+                                          id={`detailArr[${index}].colorName`}
+                                          styles={this.selectStyle}
+                                          value={{
+                                            value:
+                                              values.detailArr[index].colorName,
+                                            label:
+                                              values.detailArr[index].colorName,
+                                          }}
+                                          error={getIn(
                                             errors,
                                             `detailArr[${index}].colorName`,
-                                          ) ? (
-                                            <text className="error-form">
-                                              {
-                                                errors.detailArr[index]
-                                                  .colorName
-                                              }
-                                            </text>
-                                          ) : null}
-                                        </FormGroup>
+                                          )}
+                                          touched={getIn(
+                                            touched,
+                                            `detailArr[${index}].colorName`,
+                                          )}
+                                          onChange={(e) => {
+                                            this.handleChangeColor(
+                                              e,
+                                              index,
+                                              setFieldValue,
+                                            );
+                                          }}
+                                          options={this.state.colorOpt}
+                                        />
+                                        {getIn(
+                                          errors,
+                                          `detailArr[${index}].colorName`,
+                                        ) ? (
+                                          <text className="error-form">
+                                            {errors.detailArr[index].colorName}
+                                          </text>
+                                        ) : null}
+                                      </FormGroup>
+                                    </Col>
+                                    <Col md={2} xs={1}>
+                                      <FormGroup>
+                                        <Label for={`detailArr${index}hex`}>
+                                          Hex
+                                        </Label>
+                                        <ColorPicker
+                                          id={`tooltip-${index}-hex`}
+                                          setValues={setFieldValue}
+                                          name={`detailArr[${index}].hex`}
+                                          value={values.detailArr[index].hex}
+                                          error={getIn(
+                                            errors,
+                                            `detailArr[${index}].hex`,
+                                          )}
+                                          touched={getIn(
+                                            touched,
+                                            `detailArr[${index}].hex`,
+                                          )}
+                                          err={errors}
+                                          index={index}
+                                        />
+                                      </FormGroup>
+                                    </Col>
+                                    <Col md={3} xs={3}>
+                                      <FormGroup>
+                                        <Label
+                                          for={`detailArr.${index}.available`}>
+                                          {values.detailArr[index].available
+                                            ? 'Available'
+                                            : 'Unavailable'}
+                                        </Label>
+                                        <CustomInput
+                                          type="switch"
+                                          tag={Field}
+                                          id={`detailArr.${index}.available`}
+                                          name={`detailArr[${index}].available`}
+                                          checked={
+                                            values.detailArr[index].available
+                                          }
+                                          onClick={() =>
+                                            this.switchChange(
+                                              values.detailArr[index].available,
+                                              `detailArr[${index}].available`,
+                                              setFieldValue,
+                                            )
+                                          }
+                                        />
+                                      </FormGroup>
+                                    </Col>
+                                    {values.detailArr.length > 1 ? (
+                                      <Col
+                                        lg={2}
+                                        md={2}
+                                        xs={2}
+                                        className="d-flex align-items-center justify-content-center">
+                                        <Button
+                                          name={`remove-${index}-action`}
+                                          id={`remove-${index}-action`}
+                                          className="rounded-pill"
+                                          color="danger"
+                                          type="button"
+                                          onClick={() =>
+                                            this.openDeleteDetail(
+                                              detailArr.id,
+                                              index,
+                                              arrayHelpers,
+                                            )
+                                          }>
+                                          Remove
+                                        </Button>
                                       </Col>
-                                      <Col md={2} xs={1}>
-                                        <FormGroup>
-                                          <Label for={`detailArr${index}hex`}>
-                                            Hex
-                                          </Label>
-                                          <ColorPicker
-                                            id={`tooltip-${index}-hex`}
-                                            setValues={setFieldValue}
-                                            name={`detailArr[${index}].hex`}
-                                            value={values.detailArr[index].hex}
-                                            error={getIn(
-                                              errors,
-                                              `detailArr[${index}].hex`,
-                                            )}
-                                            touched={getIn(
-                                              touched,
-                                              `detailArr[${index}].hex`,
-                                            )}
-                                            err={errors}
-                                            index={index}
-                                          />
-                                        </FormGroup>
-                                      </Col>
-                                      <Col md={3} xs={3}>
-                                        <FormGroup>
-                                          <Label
-                                            for={`detailArr.${index}.available`}>
-                                            {values.detailArr[index].available
-                                              ? 'Available'
-                                              : 'Unavailable'}
-                                          </Label>
-                                          <CustomInput
-                                            type="switch"
-                                            tag={Field}
-                                            id={`detailArr.${index}.available`}
-                                            name={`detailArr[${index}].available`}
-                                            checked={
-                                              values.detailArr[index].available
-                                            }
-                                            onChange={handleChange}
-                                          />
-                                        </FormGroup>
-                                      </Col>
-                                      {values.detailArr.length > 1 ? (
-                                        <Col md={2} xs={2}>
-                                          <FormGroup>
-                                            <Label>Action</Label>
-                                            <Button
-                                              className="rounded-pill"
-                                              color="danger"
-                                              type="button"
-                                              onClick={() =>
-                                                this.openDeleteDetail(
-                                                  index,
-                                                  arrayHelpers,
-                                                )
-                                              } // remove a friend from the list
-                                            >
-                                              Remove
-                                            </Button>
-                                          </FormGroup>
-                                          <ModalConfirm
-                                            modalOpen={this.state.modalDelete}
-                                            confirm={this.deleteDetail}
-                                            close={this.closeDetailModal}
-                                          />
-                                        </Col>
-                                      ) : null}
-                                    </Row>
-                                  </div>
-                                ))}
-                                <Button
-                                  color="success"
-                                  outline
-                                  type="button"
-                                  onClick={() =>
-                                    arrayHelpers.push({
-                                      ...this.itemDetailObj,
-                                    })
-                                  }>
-                                  {/* show this when user has removed all friends from the list */}
-                                  Add a color
-                                </Button>
-                              </div>
-                              <Tooltip
-                                isOpen={!this.state.availableTest}
-                                placement="top"
-                                target="item-detail">
-                                {/* eslint-disable-next-line react/prop-types */}
-                                At least one should be available!
-                              </Tooltip>
+                                    ) : null}
+                                  </Row>
+                                </div>
+                              ))}
+                              <Button
+                                color="success"
+                                outline
+                                type="button"
+                                onClick={() =>
+                                  arrayHelpers.push({
+                                    ...this.itemDetailObj,
+                                  })
+                                }>
+                                {/* show this when user has removed all friends from the list */}
+                                Add a color
+                              </Button>
                             </div>
                           ) : (
                             <Button
@@ -856,12 +985,72 @@ class ModalUpdate extends React.Component {
                         color="success"
                         type="submit"
                         className="rounded-pill">
-                        Submit
+                        Update
                       </Button>
                       <ModalLoading
                         modalOpen={this.props.adminUpdate.updateItemPending}
                       />
                     </div>
+
+                    {/* modal success update item */}
+                    <ModalConfirm
+                      modalOpen={this.state.notifUpdate}
+                      {...this.state.propsNotifUpdate}
+                    />
+
+                    {/* modal for delete image */}
+                    <ModalConfirm
+                      modalOpen={this.state.imgDel}
+                      close={this.closeDeleteImage}
+                      confirm={this.handleDeleteImage}
+                    />
+                    <ModalLoading
+                      modalOpen={this.props.adminDelete.deleteImagePending}
+                    />
+                    <ModalConfirm
+                      modalOpen={this.state.notifDel}
+                      content="Success delete image"
+                      title="Success!"
+                      close={() => {
+                        this.setState({
+                          notifDel: true,
+                        });
+                      }}
+                      confirm={() => {
+                        this.setState({
+                          notifDel: true,
+                        });
+                      }}
+                    />
+
+                    {/* delete item detail */}
+                    <ModalConfirm
+                      modalOpen={this.state.modalDelete}
+                      confirm={this.deleteDetail}
+                      close={() => {
+                        this.setState({
+                          modalDelete: false,
+                        });
+                      }}
+                    />
+                    <ModalLoading
+                      modalOpen={this.props.adminDelete.deleteItemDetailPending}
+                    />
+                    <ModalConfirm
+                      modalOpen={this.state.notifDetail}
+                      confirm={() =>
+                        this.setState({
+                          notifDetail: false,
+                        })
+                      }
+                      close={() =>
+                        this.setState({
+                          notifDetail: false,
+                        })
+                      }
+                      title="Success!"
+                      content="Success delete item detail"
+                    />
                   </Form>
                 );
               }}
@@ -895,7 +1084,7 @@ ModalUpdate.propTypes = {
   deleteItemDetail: propTypes.func.isRequired,
   updateItem: propTypes.func.isRequired,
   getThisItem: propTypes.func.isRequired,
-  getAdminItems: propTypes.func.isRequired,
+  getAllItem: propTypes.func.isRequired,
   admin: propTypes.objectOf(propTypes.object).isRequired,
   condition: propTypes.objectOf(propTypes.object).isRequired,
   auth: propTypes.objectOf(propTypes.object).isRequired,

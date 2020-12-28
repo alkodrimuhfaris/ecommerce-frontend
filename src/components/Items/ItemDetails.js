@@ -3,11 +3,13 @@ import {useHistory, useParams} from 'react-router-dom';
 import {Row, Col, Container, Button, Input, Tooltip} from 'reactstrap';
 import {useSelector, useDispatch} from 'react-redux';
 import {FaStar} from 'react-icons/fa';
+import {Helmet} from 'react-helmet';
 import NavBarClient from '../NavBarClient';
 import itemActions from '../../redux/actions/items';
 import StarRating from '../StarRating';
 import cartActions from '../../redux/actions/cart';
 import currencyFormat from '../../helpers/currencyFormat';
+import ModalConfirm from '../ModalConfirm';
 import ModalLoading from '../ModalLoading';
 import ItemCard from '../ItemCard';
 import '../../Assets/style/ItemDetail.css';
@@ -24,11 +26,9 @@ export default function ItemDetails() {
   const dispatch = useDispatch();
   const history = useHistory();
   const [colorSelected, setColorSelected] = useState(null);
-  const [selectSize, setSelectSize] = useState(null);
   const [selectQty, setSelectQty] = useState(1);
   const cart = useSelector((state) => state.cart);
   const [ratingArr] = Object.keys(product).length ? product.rating : [0];
-  const colorDetail = useSelector((state) => state.items.detailColorItem);
   const imgArr = [
     product.product_image_1,
     product.product_image_2,
@@ -39,6 +39,7 @@ export default function ItemDetails() {
     `${process.env.REACT_APP_URL_BACKEND}/${product.product_image_1}`,
   );
   const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [addBagAlert, setAddBagAlert] = useState(false);
 
   const toggle = () => {
     if (!colorSelected) {
@@ -82,12 +83,18 @@ export default function ItemDetails() {
   useEffect(() => {
     if (cart.postCartSuccess || cart.postCartError) {
       // eslint-disable-next-line no-undef
-      alert(cart.postCartMessage);
+      setAddBagAlert(true);
     }
   }, [cart.postCartPending]);
 
   return (
-    <div>
+    <>
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>{`${
+          product.name ? product.name : 'Tuku!'
+        } Find All you need here! || Tuku!`}</title>
+      </Helmet>
       <NavBarClient />
       <Container>
         <ModalLoading modalOpen={detailItemPending} />
@@ -162,7 +169,7 @@ export default function ItemDetails() {
                 isOpen={tooltipOpen}
                 toggle={toggle}
                 placement="top">
-                Choose one of the color! upper
+                Choose one of the color!
               </Tooltip>
               <Col xs="12" className="h6">
                 <text name="openTooltip" id="openTooltip">
@@ -182,6 +189,7 @@ export default function ItemDetails() {
                             disabled={!details.available}
                             style={{
                               backgroundColor: details.hex,
+                              opacity: details.available ? 1 : 0.2,
                               width: '80%',
                               height: '80%',
                               top: '50%',
@@ -241,7 +249,9 @@ export default function ItemDetails() {
                   color="dark"
                   className="w-100 rounded-pill"
                   style={{fontSize: '0.75em'}}
-                  onClick={(e) => pushTo('/chat', e)}>
+                  // onClick={(e) => pushTo('/chat', e)}
+                  disabled
+                >
                   Chat
                 </Button>
               </Col>
@@ -257,6 +267,27 @@ export default function ItemDetails() {
                   Add bag
                 </Button>
                 <ModalLoading modalOpen={cart.postCartPending} />
+                <ModalConfirm
+                  modalOpen={addBagAlert}
+                  title={
+                    // eslint-disable-next-line no-nested-ternary
+                    cart.postCartSuccess
+                      ? 'Success!'
+                      : cart.postCartError
+                      ? 'Error!'
+                      : 'Warning'
+                  }
+                  content={
+                    // eslint-disable-next-line no-nested-ternary
+                    cart.postCartSuccess
+                      ? 'Success add item to cart'
+                      : cart.postCartError
+                      ? 'Error add item to cart'
+                      : 'There is something not right'
+                  }
+                  confirm={() => setAddBagAlert(false)}
+                  close={() => setAddBagAlert(false)}
+                />
               </Col>
               <Col xs="12" md="6">
                 <Button
@@ -340,12 +371,10 @@ export default function ItemDetails() {
         <Row className="justify-content-md-center mt-3 mb-5">
           {productsNew.length &&
             productsNew.map((productItem) => (
-              <Col xs="5" sm="4" md="3" lg="2" className="m-2">
-                <ItemCard product={productItem} />
-              </Col>
+              <ItemCard product={productItem} />
             ))}
         </Row>
       </Container>
-    </div>
+    </>
   );
 }

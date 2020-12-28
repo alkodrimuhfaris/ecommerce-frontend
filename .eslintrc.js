@@ -32,5 +32,6 @@ module.exports = {
     "react/no-array-index-key": "off",
     "react/prop-types": "off",
     "no-plusplus": "off",
+    'react/jsx-props-no-spreading' : 'off',
   },
 };

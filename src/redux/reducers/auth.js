@@ -22,6 +22,7 @@ export default (state = initialState, action) => {
       return {
         ...state,
         isError: true,
+        isLoading: false,
         alertMsg: action.payload.response.data.message,
       };
     }

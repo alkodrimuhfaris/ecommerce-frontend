@@ -76,9 +76,9 @@ class ModalCreate extends React.Component {
       ...provided,
       // eslint-disable-next-line no-nested-ternary
       borderColor: state.selectProps.error
-        ? '#dc3545'
+        ? '#7C4935'
         : state.selectProps.touched
-        ? '#5cb85c'
+        ? '#457373'
         : 'rgba(0,0,0,.2)',
     }),
   };
@@ -94,22 +94,22 @@ class ModalCreate extends React.Component {
         {
           product_image: '',
           name: '',
-          file: {},
+          file: undefined,
         },
         {
           product_image: '',
           name: '',
-          file: {},
+          file: undefined,
         },
         {
           product_image: '',
           name: '',
-          file: {},
+          file: undefined,
         },
         {
           product_image: '',
           name: '',
-          file: {},
+          file: undefined,
         },
       ],
       availableTest: true,
@@ -119,7 +119,24 @@ class ModalCreate extends React.Component {
       modalDelete: false,
       imgDel: false,
       imgDelIndx: null,
+      notifDel: false,
+      notifPost: false,
+      oversizeNotif: false,
+      oversizeNotifProps: {
+        title: 'Warning!',
+        content: 'File should be less than 500 kb!',
+        close: () => {
+          this.setState({oversizeNotif: false});
+        },
+        confirm: () => {
+          this.setState({oversizeNotif: false});
+        },
+      },
+      propsNotifCreate: {},
     };
+    this.itemRef = React.createRef();
+    this.imageRef = React.createRef();
+    this.colorRef = React.createRef();
   }
 
   componentDidMount() {
@@ -178,37 +195,75 @@ class ModalCreate extends React.Component {
       previousProps.admin.postItemPending !== this.props.admin.postItemPending
     ) {
       if (this.props.admin.postItemSuccess) {
-        // eslint-disable-next-line no-alert
-        // eslint-disable-next-line no-undef
-        alert('success post new item!');
-        // eslint-disable-next-line react/prop-types
-        this.props.getAdminItems(this.props.auth.token);
         // eslint-disable-next-line react/no-did-update-set-state
         this.setState({
+          propsNotifCreate: {
+            close: () => {
+              this.props.getAllItem(this.props.auth.token);
+              this.setState({
+                notifPost: false,
+              });
+              this.props.modalCloseNew('crt');
+            },
+            confirm: () => {
+              this.props.getAllItem(this.props.auth.token);
+              this.setState({
+                notifPost: false,
+              });
+              this.props.modalCloseNew('crt');
+            },
+            title: 'Success!',
+            content: 'Success create new item!',
+          },
+        });
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({
+          notifPost: true,
           image: [
             {
               product_image: '',
               name: '',
-              file: {},
+              file: undefined,
             },
             {
               product_image: '',
               name: '',
-              file: {},
+              file: undefined,
             },
             {
               product_image: '',
               name: '',
-              file: {},
+              file: undefined,
             },
             {
               product_image: '',
               name: '',
-              file: {},
+              file: undefined,
             },
           ],
         });
-        this.props.modalCloseNew('crt');
+      } else if (this.props.admin.postItemError) {
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({
+          propsNotifCreate: {
+            close: () => {
+              this.setState({
+                notifPost: false,
+              });
+            },
+            confirm: () => {
+              this.setState({
+                notifPost: false,
+              });
+            },
+            title: 'Error!',
+            content: 'Unable to create new item!',
+          },
+        });
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({
+          notifPost: true,
+        });
       }
     }
   }
@@ -228,11 +283,10 @@ class ModalCreate extends React.Component {
     image[this.state.imgDelIndx] = {
       product_image: '',
       name: '',
-      file: {},
+      file: undefined,
     };
-    this.setState({image, imgDel: false});
+    this.setState({image, imgDel: false, notifDel: true});
     // eslint-disable-next-line no-undef
-    alert('Image deleted!');
   };
 
   closeDeleteImage = () => {
@@ -302,6 +356,8 @@ class ModalCreate extends React.Component {
       for (const image of this.state.image) {
         // eslint-disable-next-line no-await-in-loop
         data.append('product_image', image.file);
+        const name = image.file ? image.name : '';
+        data.append('imageOrder', name);
       }
       const detailArr = val.detailArr.length
         ? qs.stringify({detailArr: [...val.detailArr]})
@@ -329,12 +385,11 @@ class ModalCreate extends React.Component {
       const image = [...this.state.image];
       const [file] = event.target.files;
       if (file.size > 500 * 1024) {
-        // eslint-disable-next-line no-undef
-        alert('file should be less than 500 kB!');
+        this.setState({oversizeNotif: true});
       } else {
         image[index] = {
           product_image: URL.createObjectURL(file),
-          name: file.name,
+          name: `product_image_${index + 1}`,
           file,
         };
         console.log(event.target.value);
@@ -355,14 +410,15 @@ class ModalCreate extends React.Component {
     setValue(name, e.value);
   };
 
+  scroll = (ref) => {
+    ref.current.scrollIntoView({behavior: 'smooth'});
+  };
+
   render() {
     return (
       <>
         {/* modal for post new */}
-        <Modal
-          isOpen={this.props.modalOpenNew}
-          size="lg"
-          style={{maxWidth: '1600px', width: '80%'}}>
+        <Modal isOpen={this.props.modalOpenNew} size="lg">
           <ModalHeader>Add New Item</ModalHeader>
           <ModalBody>
             {/* eslint-disable-next-line react/prop-types */}
@@ -395,6 +451,7 @@ class ModalCreate extends React.Component {
 
                 return (
                   <Form onSubmit={handleSubmit}>
+                    <h3 className="text-success mt-2 mb-1">Item Detail</h3>
                     <FormGroup>
                       <Label for="name">Item&apos;s name</Label>
                       <Input
@@ -549,7 +606,12 @@ class ModalCreate extends React.Component {
                     </FormGroup>
 
                     {/* add images */}
+                    <h3 className="text-success mt-2 mb-1">Product Image</h3>
                     <div className="row">
+                      <ModalConfirm
+                        modalOpen={this.state.oversizeNotif}
+                        {...this.state.oversizeNotifProps}
+                      />
                       {this.state.image.map((item, index) => (
                         <div className="p-3 col-6">
                           <div
@@ -568,9 +630,7 @@ class ModalCreate extends React.Component {
                               </text>
                             </div>
                             <div className="position-relative image-wrapper">
-                              {Object.keys(
-                                this.state.image[index].product_image,
-                              ).length ? (
+                              {item.product_image ? (
                                 <button
                                   type="button"
                                   onClick={() => this.openDeleteImage(index)}
@@ -578,11 +638,6 @@ class ModalCreate extends React.Component {
                                   <AiFillCloseCircle color="white" size="1em" />
                                 </button>
                               ) : null}
-                              <ModalConfirm
-                                modalOpen={this.state.imgDel}
-                                close={this.closeDeleteImage}
-                                confirm={this.handleDeleteImage}
-                              />
                               <img
                                 className="position-absolute img-fluid center-img"
                                 src={
@@ -590,9 +645,13 @@ class ModalCreate extends React.Component {
                                     ? item.product_image
                                     : placeholderImage
                                 }
-                                alt={`${
-                                  Object.keys(item.product_image)[0]
-                                }_${index}`}
+                                alt={
+                                  item.product_image
+                                    ? `${
+                                        Object.keys(item.product_image)[0]
+                                      }_${index}`
+                                    : ''
+                                }
                               />
                             </div>
                             <label
@@ -623,6 +682,9 @@ class ModalCreate extends React.Component {
                     </div>
 
                     {/* add item details */}
+                    <h3 className="text-success mt-2 mb-1">
+                      Product&apos;s Color
+                    </h3>
                     <FieldArray
                       name="detailArr"
                       render={(arrayHelpers) => (
@@ -720,7 +782,7 @@ class ModalCreate extends React.Component {
                                       </Col>
                                       {values.detailArr.length > 1 ? (
                                         <Col md={2} xs={2}>
-                                          <FormGroup>
+                                          <FormGroup className="d-flex flex-column">
                                             <Label>Action</Label>
                                             <Button
                                               className="rounded-pill"
@@ -736,11 +798,6 @@ class ModalCreate extends React.Component {
                                               Remove
                                             </Button>
                                           </FormGroup>
-                                          <ModalConfirm
-                                            modalOpen={this.state.modalDelete}
-                                            confirm={this.deleteDetail}
-                                            close={this.closeDetailModal}
-                                          />
                                         </Col>
                                       ) : null}
                                     </Row>
@@ -795,6 +852,41 @@ class ModalCreate extends React.Component {
                         modalOpen={this.props.admin.postItemPending}
                       />
                     </div>
+
+                    {/* modal for delete image */}
+                    <ModalConfirm
+                      modalOpen={this.state.imgDel}
+                      close={this.closeDeleteImage}
+                      confirm={this.handleDeleteImage}
+                    />
+                    <ModalConfirm
+                      modalOpen={this.state.notifDel}
+                      content="Success delete image"
+                      title="Success!"
+                      close={() => {
+                        this.setState({
+                          notifDel: true,
+                        });
+                      }}
+                      confirm={() => {
+                        this.setState({
+                          notifDel: true,
+                        });
+                      }}
+                    />
+
+                    {/* modal delete detail */}
+                    <ModalConfirm
+                      modalOpen={this.state.modalDelete}
+                      confirm={this.deleteDetail}
+                      close={this.closeDetailModal}
+                    />
+
+                    {/* modal success post */}
+                    <ModalConfirm
+                      modalOpen={this.state.notifPost}
+                      {...this.state.propsNotifCreate}
+                    />
                   </Form>
                 );
               }}

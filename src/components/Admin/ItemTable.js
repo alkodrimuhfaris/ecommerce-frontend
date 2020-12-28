@@ -4,7 +4,7 @@ import {
   Row,
   Container,
   Col,
-  UncontrolledPopover,
+  Popover,
   Form,
   FormGroup,
   Label,
@@ -15,11 +15,26 @@ import {
 import propTypes from 'prop-types';
 import {connect} from 'react-redux';
 import Select from 'react-select';
+// import scrollIntoView from 'scroll-into-view-if-needed';
 import {ReactComponent as SearchLogo} from '../../Assets/icons/searchIcon.svg';
 import {ReactComponent as Filter} from '../../Assets/icons/filter.svg';
 import sortOpt from '../Helpers/sortOption';
 import adminAction from '../../redux/actions/admin';
 import ModalLoading from '../ModalLoading';
+import currencyFormat from '../../helpers/currencyFormat';
+import ModalUpdate from './ModalUpdate';
+import ModalConfirm from '../ModalConfirm';
+import useWindowDimension from '../Helpers/useWindowDimension';
+
+const CreateNewText = () => {
+  const screenRatio = useWindowDimension();
+  return (
+    <text
+      className={screenRatio.lg ? 'font-weight-bold' : 'font-weight-normal'}>
+      +{screenRatio.lg ? '' : ' Add New'}
+    </text>
+  );
+};
 
 class ItemTable extends React.Component {
   constructor(props) {
@@ -36,13 +51,34 @@ class ItemTable extends React.Component {
         after: '',
       },
       applyBtn: true,
+      openModalDelete: false,
+      openSuccessDelete: false,
+      deleteId: null,
+      deleteName: '',
+      selectedItemId: null,
+      openModalUpdate: false,
+      filterPopover: false,
     };
+    this.topRef = React.createRef();
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.query !== this.props.query) {
-      this.props.getItemSeller(this.props.auth.token);
+    if (
+      prevProps.adminDelete.deleteItemPending !==
+      this.props.adminDelete.deleteItemPending
+    ) {
+      if (this.props.adminDelete.deleteItemSuccess) {
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({
+          openSuccessDelete: this.props.adminDelete.deleteItemSuccess,
+        });
+      }
     }
+    // if (prevProps.admin.getDataPending !== this.props.admin.getDataPending) {
+    //   if (this.props.admin.getDataSuccess) {
+    //     this.scroll(this.topRef);
+    //   }
+    // }
   }
 
   handleSearchSort = (e) => {
@@ -71,14 +107,25 @@ class ItemTable extends React.Component {
   };
 
   getItemDetail = (id) => {
-    this.props.getItemDetail(this.props.auth.token, id);
-    this.props.openDetail(id);
+    this.setState({
+      selectedItemId: id,
+      modalOpenUpdate: true,
+    });
+  };
+
+  openDelete = (id, name) => {
+    this.setState({
+      openModalDelete: true,
+      deleteId: id,
+      deleteName: name,
+    });
   };
 
   render() {
     const {admin} = this.props;
     const {pageInfo} = admin;
     const {sellerProducts: data} = this.props;
+
     return (
       <Container>
         <div className="d-flex my-3 align-items-start justify-content-around">
@@ -86,7 +133,7 @@ class ItemTable extends React.Component {
             onClick={() => this.props.openNew()}
             color="success"
             className="mr-3 rounded-pill">
-            + Add new
+            <CreateNewText />
           </Button>
           <Form
             className="w-75 align-items-center"
@@ -97,6 +144,7 @@ class ItemTable extends React.Component {
                   type="name"
                   name="searchVal"
                   id="searchVal"
+                  style={{height: '2.5em'}}
                   value={this.state.search}
                   onChange={(e) => {
                     this.setState({
@@ -105,7 +153,7 @@ class ItemTable extends React.Component {
                   }}
                 />
                 <InputGroupAddon addonType="append">
-                  <Button type="submit">
+                  <Button color="success" type="submit">
                     <SearchLogo />
                   </Button>
                   <ModalLoading modalOpen={this.props.admin.getDataPending} />
@@ -116,21 +164,32 @@ class ItemTable extends React.Component {
           <Button
             className="ml-2"
             outline
+            onClick={() =>
+              this.setState((prevState) => ({
+                filterPopover: !prevState.filterPopover,
+              }))
+            }
             color="success"
             name="PopoverLegacy"
             id="PopoverLegacy"
             style={{marginBottom: '1rem'}}>
             <Filter />
           </Button>
-          <UncontrolledPopover
-            trigger="legacy"
+          <Popover
+            toggle={() =>
+              this.setState((prevState) => ({
+                filterPopover: !prevState.filterPopover,
+              }))
+            }
+            isOpen={this.state.filterPopover}
             placement="bottom"
             target="PopoverLegacy">
-            <div className="p-1">
+            <div className="pt-2 px-2">
               <Form onSubmit={this.handleSearchSort}>
                 <Label for="sortKey">Sort by</Label>
                 <Select
                   id="sortKey"
+                  className="mb-4"
                   value={this.state.sort}
                   options={sortOpt}
                   onChange={(e) => this.setState({sort: e})}
@@ -154,7 +213,17 @@ class ItemTable extends React.Component {
                     value={this.state.before}
                     onChange={(e) => this.setState({before: e.target.value})}
                   />
-                  <div className="d-flex justify-content-center">
+                  <div className="d-flex justify-content-around">
+                    <Button
+                      className="rounded-pill my-3"
+                      color="success"
+                      onClick={() =>
+                        this.setState((prevState) => ({
+                          filterPopover: !prevState.filterPopover,
+                        }))
+                      }>
+                      Close
+                    </Button>
                     <Button
                       className="rounded-pill my-3"
                       outline
@@ -166,19 +235,9 @@ class ItemTable extends React.Component {
                 </FormGroup>
               </Form>
             </div>
-          </UncontrolledPopover>
+          </Popover>
         </div>
-        {/* <Row xs="2">
-          <Col xs="3">
-          </Col>
-          <Col xs="9">
-            <div className="d-flex justify-content-between my-3">
-              <div>
-              </div>
-            </div>
-          </Col>
-        </Row> */}
-        <Row xs="2">
+        <Row ref={this.topRef} xs="2">
           <Col
             className="d-flex align-items-center justify-content-center border px-2 py-3"
             md="2"
@@ -209,7 +268,7 @@ class ItemTable extends React.Component {
           pageInfo.count !== 0 ? (
             data.map((item, index) => {
               const page =
-                pageInfo.limit === '-'
+                pageInfo.dataPerPage === '-'
                   ? index + 1
                   : index +
                     1 +
@@ -232,7 +291,9 @@ class ItemTable extends React.Component {
                     md="3"
                     xs="3"
                     className="border d-flex align-items-center justify-content-center px-2 py-3">
-                    <span className="text-center">{item.price}</span>
+                    <span className="text-center">
+                      {currencyFormat(item.price)}
+                    </span>
                   </Col>
                   <Col
                     md="4"
@@ -253,9 +314,7 @@ class ItemTable extends React.Component {
                         className="col-md-4 d-flex align-items-center justify-content-center my-1"
                         xs="12">
                         <Button
-                          onClick={() =>
-                            this.props.openDelete(item.id, item.name)
-                          }
+                          onClick={() => this.openDelete(item.id, item.name)}
                           color="danger"
                           className="rounded-pill">
                           Delete
@@ -277,6 +336,51 @@ class ItemTable extends React.Component {
             </Container>
           )
         ) : null}
+
+        {/* modal for delete */}
+        <ModalConfirm
+          modalOpen={this.state.openModalDelete}
+          confirm={() => {
+            this.props.deleteItem(this.props.auth.token, this.state.deleteId);
+            this.setState({
+              openModalDelete: false,
+            });
+          }}
+          close={() => {
+            this.setState({
+              openModalDelete: false,
+            });
+          }}
+          content={`Are you sure want to delete ${this.state.deleteName} from the list?`}
+          title="Confirm Deletion"
+        />
+        <ModalLoading modalOpen={this.props.adminDelete.deleteItemPending} />
+        <ModalConfirm
+          title="Success!"
+          modalOpen={this.state.openSuccessDelete}
+          close={() => {
+            this.props.getItemSeller(this.props.auth.token, this.props.query);
+            this.setState({openSuccessDelete: false});
+          }}
+          confirm={() => {
+            this.props.getItemSeller(this.props.auth.token, this.props.query);
+            this.setState({openSuccessDelete: false});
+          }}
+          content="Success Delete Item"
+        />
+
+        {/* modal for detail */}
+        <ModalUpdate
+          modalOpenUpdate={this.state.modalOpenUpdate}
+          item_id={this.state.selectedItemId}
+          modalCloseUpdate={() => {
+            this.props.getItemSeller(this.props.auth.token, this.props.query);
+            this.setState({
+              selectedItemId: null,
+              modalOpenUpdate: false,
+            });
+          }}
+        />
       </Container>
     );
   }
@@ -293,6 +397,7 @@ const mapStateToProps = (state) => ({
   sellerProducts: state.admin.sellerProducts,
   pageInfo: state.admin.pageInfo,
   query: state.admin.query,
+  adminDelete: state.adminDelete,
 });
 
 const mapDispatchToProps = {
@@ -300,6 +405,7 @@ const mapDispatchToProps = {
   addQuery: adminAction.addQuery,
   getItemSeller: adminAction.getAdminItems,
   getItemDetail: adminAction.getItemDetails,
+  deleteItem: adminAction.deleteItem,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ItemTable);

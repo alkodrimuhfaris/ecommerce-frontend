@@ -10,9 +10,27 @@ export default function ModalConfirm({
   close = () => {},
   closeTxt = 'No',
 }) {
+  const [openThis, setThisOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setThisOpen(modalOpen);
+  }, [modalOpen]);
+
+  const doConfirm = (e) => {
+    e.preventDefault();
+    confirm();
+    setThisOpen(false);
+  };
+
+  const doCancel = (e) => {
+    e.preventDefault();
+    close();
+    setThisOpen(false);
+  };
+
   return (
     <>
-      <Modal isOpen={modalOpen}>
+      <Modal isOpen={openThis}>
         <ModalHeader>
           <div className="d-flex align-items-center">
             <text>{title}</text>
@@ -26,13 +44,13 @@ export default function ModalConfirm({
         <ModalFooter className="d-flex justify-content-around">
           <Button
             color="success"
-            onClick={() => confirm()}
+            onClick={(e) => doConfirm(e)}
             className="rounded-pill">
             {confirmTxt}
           </Button>
           <Button
             color="danger"
-            onClick={() => close()}
+            onClick={(e) => doCancel(e)}
             className="rounded-pill">
             {closeTxt}
           </Button>

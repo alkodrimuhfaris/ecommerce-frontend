@@ -1,16 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './Assets/style/custom.scss';
 import './Assets/style/style.css';
 import {Provider} from 'react-redux';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import store from './redux/store';
 
+const color = {
+  mainTheme: process.env.REACT_APP_THEME_MAIN,
+  secondaryTheme: process.env.REACT_APP_THEME_SECONDARY,
+  navyColor: process.env.REACT_APP_NAVY,
+  dijonColor: process.env.REACT_APP_DIJON,
+  jeanColor: process.env.REACT_APP_JEAN,
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <App {...color} />
     </Provider>
   </React.StrictMode>,
   document.getElementById('root'),

@@ -1,65 +1,153 @@
-import React, { useEffect, useState } from 'react'
-import { Input, Col, Row, Media, Nav, NavItem, Button, Form, FormGroup, Label, FormText } from 'reactstrap'
-import {useSelector, useDispatch} from 'react-redux'
-import {Link, useParams} from 'react-router-dom'
-import addressAction from '../../redux/actions/address'
-import EditAddress from './EditAddress'
-import NewAddress from './NewAddress'
-import modalButton from '../../redux/actions/modalButton'
-
+import React, {useEffect, useState} from 'react';
+import {Col, Row, Button, Spinner} from 'reactstrap';
+import {useSelector, useDispatch} from 'react-redux';
+import {AiOutlineClose} from 'react-icons/ai';
+import addressAction from '../../redux/actions/address';
+import UpdateAddress from './UpdateAddress';
+import NewAddress from './NewAddress';
+import modalButton from '../../redux/actions/modalButton';
+import ModalConfirm from '../ModalConfirm';
+import ModalLoading from '../ModalLoading';
 
 export default function AddressComponents() {
-  const token = useSelector(state => state.auth.token)
-  const address = useSelector(state => state.address.addressData)
-  const getAddressSuccess = useSelector(state => state.address.success)
-  const newOpen = useSelector(state => state.modalButton.modalNewAddress)
-  const editOpen = useSelector(state => state.modalButton.modalEditAddress)
-  const dispatch = useDispatch()
+  const token = useSelector((state) => state.auth.token);
+  const address = useSelector((state) => state.address.addressData);
+  const deleteAddress = useSelector((state) => state.deleteAddress);
+  const [modalConfirm, setModalConfirm] = useState(false);
+  const [propsModalConfirm, setPropsModalConfirm] = useState({});
+  const getAddressPending = useSelector(
+    (state) => state.address.getAddressPending,
+  );
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    dispatch(addressAction.getProvince(token));
+  }, []);
 
-  useEffect(()=>{
-    (!address.length || !getAddressSuccess) && dispatch(addressAction.getAddress(token))
-  },[address, token, getAddressSuccess])
+  useEffect(() => {
+    dispatch(addressAction.getAddress(token));
+  }, [token]);
 
-  const modalEdit = id => {
-    dispatch(modalButton.openAddressEdit(token, id))
-  }
+  useEffect(() => {
+    if (deleteAddress.success) {
+      setPropsModalConfirm({
+        title: 'Success!',
+        content: 'Success delete address',
+        close: () => {
+          dispatch(addressAction.getAddress(token));
+          setModalConfirm(false);
+        },
+        confirm: () => {
+          dispatch(addressAction.getAddress(token));
+          setModalConfirm(false);
+        },
+      });
+      setModalConfirm(true);
+    } else if (deleteAddress.error) {
+      setPropsModalConfirm({
+        title: 'Error!',
+        content: 'There is an error when deleting address!',
+        close: () => {
+          dispatch(addressAction.getAddress(token));
+          setModalConfirm(false);
+        },
+        confirm: () => {
+          dispatch(addressAction.getAddress(token));
+          setModalConfirm(false);
+        },
+      });
+      setModalConfirm(true);
+    }
+  }, [deleteAddress.pending]);
 
-  const modalNew = id => {
-    dispatch(modalButton.openAddressNew())
-  }
+  const modalEdit = (id) => {
+    dispatch(modalButton.openAddressEdit(token, id));
+  };
+
+  const modalNew = () => {
+    dispatch(modalButton.openAddressNew());
+  };
+
+  const addressDelete = (id) => {
+    setPropsModalConfirm({
+      title: 'Warning',
+      content: 'Are you sure want to delete this address?',
+      confirm: () => {
+        dispatch(addressAction.deleteAddress(token, id));
+        setModalConfirm(false);
+      },
+      close: () => {
+        setModalConfirm(false);
+      },
+    });
+    setModalConfirm(true);
+  };
 
   return (
-    <React.Fragment>
+    <>
       <Row>
-        <Button onClick={() => modalNew()} className='btn-custom w-100 h6 text-secondary'>
-          <Col xs='12' style={{border:'1px dashed', height:'5em'}} className='my-3 py-3 position-relative border-secondary rounded'>
-            <div className='img-center'>
-              Add new address
-            </div>
-          </Col>
+        <ModalConfirm modalOpen={modalConfirm} {...propsModalConfirm} />
+        <ModalLoading modalOpen={deleteAddress.pending} />
+        <Button
+          color="success"
+          outline
+          onClick={() => modalNew()}
+          block
+          className="mb-3 btn-add-address d-flex align-items-center justify-content-center">
+          Add new address
         </Button>
-        {
-          address.length &&
-          address.map(item => {
-            return (
-              <Col xs='12' className='mb-3 py-3  rounded border border-success'>
-                <div className='my-2 h6'>
-                  {item.address_name}
-                </div>
-                <div className='my-2'>
-                  {item.address.concat(' '+item.city).concat(' '+item.postal_code)}
-                </div>
-                <Button onClick={() => modalEdit(item.id)} className='btn-custom my-2 text-success stretched-link'>
-                  <strong>Change Address</strong>
-                </Button>
-              </Col>
-            )
-          })
-        }
-        <NewAddress/>
-        <EditAddress/>
+        {/* eslint-disable-next-line no-nested-ternary */}
+        {getAddressPending ? (
+          <Col
+            xs="12"
+            className="py-3 d-flex align-items-center justify-content-center">
+            <Spinner color="success" size="sm" />
+          </Col>
+        ) : address.length ? (
+          address.map((item) => (
+            <Col
+              xs="12"
+              className={`mb-3 py-3 position-relative rounded border${
+                item.primary_address ? ' border-success' : ''
+              }`}>
+              <Button
+                onClick={() => addressDelete(item.id)}
+                color="white"
+                className="position-absolute btn-delete-address">
+                <AiOutlineClose
+                  color="#7C4935"
+                  style={{width: '1em', height: '1em'}}
+                />
+              </Button>
+              <div className="my-2 h6">
+                <strong>{item.address_name}</strong>
+              </div>
+              <div className="my-2">
+                {item.address
+                  .concat(` ${item.city}`)
+                  .concat(` ${item.postal_code}`)}
+              </div>
+              <Button
+                onClick={() => modalEdit(item.id)}
+                outline
+                color="success"
+                className="btn-custom-no-outline my-2">
+                Change Address
+              </Button>
+            </Col>
+          ))
+        ) : (
+          <Col
+            xs="12"
+            className="py-3 d-flex align-items-center justify-content-center">
+            <text className="text-center text-danger">
+              <small>You haven&apos;t create any address, create one!</small>
+            </text>
+          </Col>
+        )}
+        <NewAddress />
+        <UpdateAddress />
       </Row>
-    </React.Fragment>
-  )
+    </>
+  );
 }

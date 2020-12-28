@@ -1,0 +1,31 @@
+.error-form {
+  font-size: 0.8em;
+  color: #7C4935;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.modal-header {
+  display: block;
+}
+
+.btn-close {
+  top: 5px;
+  right: 5px;
+  position: absolute;
+  background-color: transparent;
+  padding: 0px;
+  width: 2em;
+  height: 2em;
+  border-radius: 2em;
+}
+
+.header-container {
+  width: 100%;
+}
+
+.checkbox {
+  position: absolute;
+  top: -0.1em;
+  left: -0.1em;
+}

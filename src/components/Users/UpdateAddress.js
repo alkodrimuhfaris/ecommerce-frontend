@@ -55,13 +55,18 @@ const schemaAddress = Yup.object().shape({
 
 export default function ModalNew() {
   const token = useSelector((state) => state.auth.token);
-  const open = useSelector((state) => state.modalButton.modalNewAddress);
+  const open = useSelector((state) => state.modalButton.modalEditAddress);
+  const id = useSelector((state) => state.modalButton.idAddress);
   const provinceData = useSelector((state) => state.address.provinceData);
   const cityData = useSelector((state) => state.address.cityData);
   const address = useSelector((state) => state.address);
-  const createAddressPending = useSelector(
-    (state) => state.address.createAddressPending,
+  const updateAddressPending = useSelector(
+    (state) => state.address.updateAddressPending,
   );
+  const getAddressIdSuccess = useSelector(
+    (state) => state.address.getAddressIdSuccess,
+  );
+  const addressDetail = useSelector((state) => state.address.addressDetail);
   const [modalConfirm, setModalConfirm] = useState(false);
   const [propsModalConfirm, setPropsModalConfirm] = useState({});
   const [provinceSelected, setProvinceSelected] = useState({
@@ -70,17 +75,27 @@ export default function ModalNew() {
   });
   const [provinceOpt, setProvinceOpt] = useState([]);
   const [cityOpt, setCityOpt] = useState([]);
+  const [citySelected, setCitySelected] = useState({});
+  const [mount, setMount] = useState(true);
+  const [cityMount, setCityMount] = useState(false);
   const dispatch = useDispatch();
 
   const close = () => {
-    dispatch(modalAction.closeAddressNew());
+    setMount(true);
+    dispatch(modalAction.closeAddressEdit());
   };
 
   useEffect(() => {
-    if (address.createAddressSuccess) {
+    if (id) {
+      dispatch(addressAction.getAddresssById(token, id));
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (address.updateAddressSuccess) {
       setPropsModalConfirm({
         title: 'Success!',
-        content: 'Success add new address!',
+        content: 'Success update address!',
         confirm: () => {
           setModalConfirm(false);
           dispatch(addressAction.getAddress(token));
@@ -88,13 +103,15 @@ export default function ModalNew() {
         },
         close: () => {
           setModalConfirm(false);
+          dispatch(addressAction.getAddress(token));
+          close();
         },
       });
       setModalConfirm(true);
-    } else if (address.createAddressError) {
+    } else if (address.updateAddressError) {
       setPropsModalConfirm({
         title: 'Warning',
-        content: 'Failed add new address!',
+        content: 'Failed update address!',
         confirm: () => {
           setModalConfirm(false);
         },
@@ -104,7 +121,30 @@ export default function ModalNew() {
       });
       setModalConfirm(true);
     }
-  }, [createAddressPending]);
+  }, [updateAddressPending]);
+
+  useEffect(() => {
+    const {province_id} = addressDetail;
+    if (getAddressIdSuccess) {
+      console.log('set select province');
+      console.log(mount);
+      if (mount) {
+        if (provinceOpt.length) {
+          if (province_id) {
+            console.log('set select province');
+            provinceOpt.forEach((item) => {
+              console.log(item);
+              if (Number(item.value) === province_id) {
+                console.log(item);
+                setProvinceSelected(item);
+              }
+            });
+            setCityMount(true);
+          }
+        }
+      }
+    }
+  }, [getAddressIdSuccess, provinceOpt]);
 
   // calibrating province data array for react-select option
   useEffect(() => {
@@ -139,6 +179,17 @@ export default function ModalNew() {
     }
   }, [provinceSelected]);
 
+  useEffect(() => {
+    if (cityMount) {
+      cityOpt.forEach((item) => {
+        if (Number(item.value) === addressDetail.city_id) {
+          setCitySelected(item);
+          setMount(false);
+        }
+      });
+    }
+  }, [cityMount, cityOpt]);
+
   const provinceSelect = (e, setValue) => {
     setProvinceSelected(e);
     setValue('city_id', 0);
@@ -152,18 +203,18 @@ export default function ModalNew() {
   };
 
   const initialValue = {
-    address_name: '',
-    phone: '',
-    address: '',
-    province_id: 0,
-    city_id: 0,
-    postal_code: '',
-    primary_address: true,
-    recipient_name: '',
+    address_name: addressDetail.address_name,
+    phone: addressDetail.phone,
+    address: addressDetail.address,
+    province_id: addressDetail.province_id || 0,
+    city_id: addressDetail.city_id || 0,
+    postal_code: addressDetail.postal_code,
+    primary_address: !!addressDetail.primary_address,
+    recipient_name: addressDetail.recipient_name,
   };
 
   const handleAdd = (values) => {
-    dispatch(addressAction.postAddress(token, values));
+    dispatch(addressAction.patchAddress(token, id, values));
   };
 
   const selectStyle = {
@@ -181,10 +232,12 @@ export default function ModalNew() {
   return (
     <>
       <Modal isOpen={open} size="lg" className="position-relative">
-        <ModalLoading modalOpen={address.createAddressPending} />
+        {/* loading get address */}
+        <ModalLoading modalOpen={address.getAddressIdPending} />
+
+        <ModalLoading modalOpen={address.updateAddressPending} />
 
         <ModalConfirm modalOpen={modalConfirm} {...propsModalConfirm} />
-
         <Button
           onClick={() => close()}
           color="white"
@@ -201,15 +254,16 @@ export default function ModalNew() {
             className="p-3 overflow-auto header-container"
             style={{backgroundColor: '#fff'}}>
             <div className="d-flex justify-content-center">
-              <h4>Create new address</h4>
+              <h4>Update address</h4>
             </div>
             <div className="d-flex justify-content-center">
               <text className="text-muted small">
-                Add your new address here
+                Update your selected address here
               </text>
             </div>
           </Container>
           <Formik
+            enableReinitialize
             initialValues={initialValue}
             validationSchema={schemaAddress}
             validateOnBlur
@@ -286,7 +340,7 @@ export default function ModalNew() {
                             Recipient&apos;s telephone number
                           </Label>
                           <Input
-                            type="text"
+                            type="number"
                             name="phone"
                             id="phone"
                             tag={Field}
@@ -357,9 +411,9 @@ export default function ModalNew() {
                               Province
                             </Label>
                             <Select
-                              tag={Field}
                               id="province_id"
                               name="province_id"
+                              value={provinceSelected}
                               styles={selectStyle}
                               error={errors.province_id}
                               touched={touched.province_id}
@@ -381,9 +435,9 @@ export default function ModalNew() {
                               City or District
                             </Label>
                             <Select
-                              tag={Field}
                               id="city_id"
                               name="city_id"
+                              value={citySelected}
                               styles={selectStyle}
                               error={errors.city_id}
                               touched={touched.city_id}

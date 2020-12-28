@@ -20,3 +20,69 @@
   height: auto;
   background-color: transparent;
 }
+
+.btn-add-address {
+  height: 5em;
+  border: 1px dashed;
+}
+
+.btn-custom-no-outline {
+  border: 0px;
+}
+
+.btn-delete-address {
+  top: 2px;
+  right: 2px;
+  position: absolute;
+  background-color: transparent;
+  padding: 0px;
+  width: 2em;
+  height: 2em;
+  border-radius: 2em;
+}
+
+.card-for-cart {
+  height: 4em;
+  width: 100%;
+}
+
+.cart-img {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.checkbox {
+  top: 0;
+  left: 0;
+  transform: translate(0, -20%);
+  position: absolute;
+}
+
+.checkbox-wrapper-cart {
+  position: relative;
+}
+
+.checkbox-inside {
+  width: 1em;
+  height: 1em;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(25%, -50%);
+}
+
+.count-text {
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+
+.text-cart-wrapper {
+  display: flex;
+  flex: 1;
+}
+
+.btn-delete-cart {
+  padding: 0px;
+  border-width: 0px;
+}

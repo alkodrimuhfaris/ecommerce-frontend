@@ -12,7 +12,7 @@ export default function Loading({openModal = true, bgTransparent = false}) {
             : 'loading-background-transparent'
         }>
         <div className="loading-indicator">
-          <Spinner color="success" />
+          <Spinner color={process.env.REACT_APP_THEME_MAIN} />
         </div>
       </div>
     </>

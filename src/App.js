@@ -1,6 +1,8 @@
+/* eslint-disable no-undef */
 import React from 'react';
-import {BrowserRouter, Switch, Route, Link} from 'react-router-dom';
+import {BrowserRouter, Switch, Route} from 'react-router-dom';
 import {Provider, connect} from 'react-redux';
+import {Helmet} from 'react-helmet';
 import PrivateRoute from './components/Auth/PrivateRoute';
 import PrivateRouteSeller from './components/Auth/PrivateRouteSeller';
 import Items from './components/Admin/Item';
@@ -11,6 +13,7 @@ import Profile from './components/Users/Profile';
 import NavBarClient from './components/NavBarClient';
 import ItemDetails from './components/Items/ItemDetails';
 import Cart from './components/Users/Cart';
+import SearchPage from './components/Items/SearchItem';
 
 import authAction from './redux/actions/auth';
 // Import store
@@ -42,22 +45,54 @@ class App extends React.Component {
   render() {
     return (
       <Provider store={store}>
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>
+            Tuku! Shopping online with trusted seller! Shopping? Nengdi Wae!
+          </title>
+        </Helmet>
         <BrowserRouter>
           <Switch>
-            <Route path="/" render={(props) => <Home {...props} />} exact />
+            <Route
+              path="/"
+              render={(props) => (
+                <>
+                  <Helmet>
+                    <meta charSet="utf-8" />
+                    <title>
+                      Home || Tuku! Shopping online with trusted seller!
+                      Shopping? Nengdi Wae!
+                    </title>
+                  </Helmet>
+                  <Home {...props} />
+                </>
+              )}
+              exact
+            />
             <Route
               path="/login"
-              render={(props) => <Login {...props} />}
+              render={(props) => (
+                <>
+                  <Helmet>
+                    <meta charSet="utf-8" />
+                    <title>Login || Tuku!</title>
+                  </Helmet>
+                  <Login {...props} />
+                </>
+              )}
               exact
             />
             <Route
               path="/signup"
-              render={(props) => <Signup {...props} />}
-              exact
-            />
-            <Route
-              path="/NavBar"
-              render={(props) => <NavBarClient {...props} />}
+              render={(props) => (
+                <>
+                  <Helmet>
+                    <meta charSet="utf-8" />
+                    <title>Sign Up || Tuku!</title>
+                  </Helmet>
+                  <Signup {...props} />
+                </>
+              )}
               exact
             />
             <Route
@@ -65,17 +100,46 @@ class App extends React.Component {
               render={(props) => <ItemDetails {...props} />}
               exact
             />
+            <Route
+              path="/search"
+              render={(props) => <SearchPage {...props} />}
+              exact
+            />
             <PrivateRouteSeller path="/admin">
-              <Items />
+              <>
+                <Helmet>
+                  <meta charSet="utf-8" />
+                  <title>Admin || Tuku!</title>
+                </Helmet>
+                <Items />
+              </>
             </PrivateRouteSeller>
             <PrivateRoute path="/cart">
-              <Cart />
+              <>
+                <Helmet>
+                  <meta charSet="utf-8" />
+                  <title>Cart || Tuku!</title>
+                </Helmet>
+                <Cart />
+              </>
             </PrivateRoute>
             <PrivateRoute path="/profile">
-              <Profile />
+              <>
+                <Helmet>
+                  <meta charSet="utf-8" />
+                  <title>Profile || Tuku!</title>
+                </Helmet>
+                <Profile />
+              </>
             </PrivateRoute>
             <PrivateRoute path="/address">
-              <Profile />
+              <>
+                <Helmet>
+                  <meta charSet="utf-8" />
+                  <title>Address || Tuku!</title>
+                </Helmet>
+                <Profile />
+              </>
             </PrivateRoute>
           </Switch>
         </BrowserRouter>

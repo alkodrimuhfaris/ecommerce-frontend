@@ -69,11 +69,11 @@ export default (state = initialState, action) => {
       };
     }
     case 'GET_CART_FULFILLED': {
-      const {message, success, data} = action.payload.data;
+      const {message, success, results} = action.payload.data;
       if (success) {
         return {
           ...state,
-          dataCart: data,
+          dataCart: results,
           dataCartPending: false,
           dataCartError: false,
           dataCartSuccess: true,

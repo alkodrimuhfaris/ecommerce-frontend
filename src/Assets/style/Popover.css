@@ -1,0 +1,36 @@
+.popover-container {
+  bottom: 0px;
+  left: 50%;
+  transform: translate(-50%, calc(100% + 6.6px));
+}
+
+.popover-wrapper {
+    /* Border */
+    width: auto;
+    height: auto;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 0.5em;
+
+    /* Used to position the arrow */
+    position: relative;
+}
+
+.popover-center {
+  /* Position at the top center */
+  left: 50%;
+  position: absolute;
+  top: 0px;
+
+  /* Border */
+  background-color: #FFF;
+  border-left: 1px solid rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(0, 0, 0, 0.3);
+  transform: translate(-50%, -50%) rotate(45deg);
+
+  /* Size */
+  height: 16px;
+  width: 16px;
+
+  z-index: 20;
+}

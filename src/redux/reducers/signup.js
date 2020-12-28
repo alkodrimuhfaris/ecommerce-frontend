@@ -28,14 +28,15 @@ export default (state = initialState, action) => {
         alertMsg: 'sign up successfull',
         isLoading: false,
       };
-    } 
+    }
     case 'CLEAR_STATE': {
       return {
+        ...state,
         userIsCreated: false,
         isError: false,
         alertMsg: '',
         isLoading: false,
-      }
+      };
     }
     default: {
       return state;

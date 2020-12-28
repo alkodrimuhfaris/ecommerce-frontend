@@ -13,8 +13,10 @@ import adminDelete from './adminDelete';
 import adminUpdate from './adminUpdate';
 import searchQuery from './searchQuery';
 import category from './category';
-
-console.log(auth);
+import password from './password';
+import deleteAddress from './deleteAddress';
+import deleteCart from './deleteCart';
+import getCheckout from './getCheckout';
 
 export default combineReducers({
   auth,
@@ -30,4 +32,8 @@ export default combineReducers({
   adminUpdate,
   searchQuery,
   category,
+  password,
+  deleteAddress,
+  deleteCart,
+  getCheckout,
 });

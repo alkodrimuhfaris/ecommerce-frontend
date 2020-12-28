@@ -26,7 +26,7 @@ export default {
   }),
   deleteItem: (token, id) => ({
     type: 'DELETE_ITEM',
-    payload: services(token).delete(`/items/delete${id}`),
+    payload: services(token).delete(`/items/delete/${id}`),
   }),
   deleteDetailItem: (token, item_id, id) => ({
     type: 'DELETE_ITEM_DETAILS',

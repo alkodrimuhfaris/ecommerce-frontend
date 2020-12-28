@@ -1,39 +1,39 @@
 const initialState = {
   modalNewAddress: false,
   modalEditAddress: false,
-  addressOnId: []
-}
+  idAddress: 0,
+};
 
-export default (state=initialState, action) => {
-  switch(action.type){
+export default (state = initialState, action) => {
+  switch (action.type) {
     case 'MODAL_NEW_ADDRESS_OPEN': {
       return {
         ...state,
-        modalNewAddress: true
-      }
+        modalNewAddress: true,
+      };
     }
     case 'MODAL_NEW_ADDRESS_CLOSE': {
       return {
         ...state,
-        modalNewAddress: false
-      }
+        modalNewAddress: false,
+      };
     }
     case 'MODAL_EDIT_ADDRESS_OPEN': {
-      const {data} = action.payload.data
       return {
         ...state,
         modalEditAddress: true,
-        addressOnId: data
-      }
+        idAddress: action.payload,
+      };
     }
     case 'MODAL_EDIT_ADDRESS_CLOSE': {
       return {
         ...state,
-        modalEditAddress: false
-      }
+        modalEditAddress: false,
+        idAddress: 0,
+      };
     }
-    default : {
-      return state
+    default: {
+      return state;
     }
   }
-}
+};

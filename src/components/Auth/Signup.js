@@ -1,14 +1,12 @@
+/* eslint-disable no-undef */
 import React, {Component} from 'react';
 import {
-  Alert,
   Button,
   Form,
   Input,
-  Label,
   FormGroup,
   Container,
   ButtonGroup,
-  Modal,
 } from 'reactstrap';
 import {connect} from 'react-redux';
 import {Link} from 'react-router-dom';
@@ -46,6 +44,7 @@ const schemaSeller = Yup.object().shape({
   phone: Yup.string()
     .required('Phone must be provided!')
     .matches(
+      // eslint-disable-next-line no-useless-escape
       /^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d?)\)?)?[\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?){0,})(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)[\-\.\ \\\/]?(\d+))?$/i,
       'Input right phone number format!',
     ),
@@ -68,13 +67,17 @@ class Login extends Component {
     console.log(this.state.params);
     if (prevProps.signup.isError !== this.props.signup.isError) {
       if (this.props.signup.isError) {
+        // eslint-disable-next-line no-alert
         alert(this.props.signup.alertMsg);
         this.props.clearState();
       }
     }
     if (this.props.signup.userIsCreated) {
+      // eslint-disable-next-line no-alert
       alert('sign up successful!');
-      this.props.signup.userIsCreated && this.props.history.push('/login');
+      if (this.props.signup.userIsCreated) {
+        this.props.history.push('/login');
+      }
     }
   }
 

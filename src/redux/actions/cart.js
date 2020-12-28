@@ -1,3 +1,4 @@
+import qs from 'qs';
 import services from '../../helpers/services';
 
 export default {
@@ -12,5 +13,11 @@ export default {
   getCart: (token, limit = '-') => ({
     type: 'GET_CART',
     payload: services(token).get('/mycart', {params: {limit}}),
+  }),
+  deleteCart: (token, deleteArr = [{}]) => ({
+    type: 'DELETE_BULK_CART',
+    payload: services(token).delete(
+      `/mycart/bulk?${qs.stringify({deleteArr})}`,
+    ),
   }),
 };

@@ -9,4 +9,11 @@ export default {
     type: 'PATCH_PROFILE',
     payload: services(token).patch('/users', data),
   }),
+  deleteAvatar: (token) => ({
+    type: 'DELETE_AVATAR',
+    payload: services(token).delete('/users/avatar'),
+  }),
+  clearState: () => ({
+    type: 'CLEAR_STATE',
+  }),
 };
