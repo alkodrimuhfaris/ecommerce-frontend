@@ -2,6 +2,10 @@ import qs from 'qs';
 import services from '../../helpers/services';
 
 export default {
+  addCheckoutData: (data) => ({
+    type: 'ADD_CHECKOUT_DATA',
+    payload: data,
+  }),
   getSellerArray: (token, itemdetails_id = []) => ({
     type: 'GET_SELLER_ARR',
     payload: services(token).post(

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import jwtDecode from 'jwt-decode';
 
 const initialState = {

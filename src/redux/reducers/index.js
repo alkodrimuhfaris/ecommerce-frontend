@@ -17,6 +17,7 @@ import password from './password';
 import deleteAddress from './deleteAddress';
 import deleteCart from './deleteCart';
 import getCheckout from './getCheckout';
+import checkoutData from './checkoutData';
 
 export default combineReducers({
   auth,
@@ -36,4 +37,5 @@ export default combineReducers({
   deleteAddress,
   deleteCart,
   getCheckout,
+  checkoutData,
 });

@@ -13,6 +13,7 @@ import {Link} from 'react-router-dom';
 import {ReactComponent as Logo} from '../../Assets/icons/icon.svg';
 import authAction from '../../redux/actions/auth';
 import signupAction from '../../redux/actions/signup';
+import ModalLoading from '../ModalLoading';
 // import profile from '../../redux/actions/profile';
 // import StarRating from '../StarRating';
 
@@ -173,10 +174,11 @@ class Login extends Component {
             </Button>
           </Form>
           <div className="text-center my-3">
-            Don&quotes;t have a Tuku account?{' '}
+            Don&apos;t have a Tuku account?{' '}
             <span>
               <Link to="/signup">Register!</Link>
             </span>
+            <ModalLoading modalOpen={this.props.auth.isLoading} />
           </div>
         </Container>
       </React.Fragment>

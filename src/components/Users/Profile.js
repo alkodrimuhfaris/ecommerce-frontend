@@ -149,11 +149,11 @@ export default function Profile() {
           {!md ? (
             <Media className="align-items-center my-3">
               <Media left>
-                <div className="position-relative border-circle square3p5em">
+                <div className="position-relative rounded-circle overflow-hidden border-circle square3p5em">
                   <Media
                     object
                     src={showAvatar}
-                    className="rounded-circle img-fluid img-center"
+                    className="img-fluid img-center"
                   />
                 </div>
               </Media>
