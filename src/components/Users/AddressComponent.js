@@ -9,7 +9,13 @@ import modalButton from '../../redux/actions/modalButton';
 import ModalConfirm from '../ModalConfirm';
 import ModalLoading from '../ModalLoading';
 
-export default function AddressComponents() {
+export default function AddressComponents({
+  addressSelector = false,
+  selectAddress = (id) => {
+    console.log(id);
+  },
+  selectedAddress = 0,
+}) {
   const token = useSelector((state) => state.auth.token);
   const address = useSelector((state) => state.address.addressData);
   const deleteAddress = useSelector((state) => state.deleteAddress);
@@ -108,17 +114,31 @@ export default function AddressComponents() {
             <Col
               xs="12"
               className={`mb-3 py-3 position-relative rounded border${
-                item.primary_address ? ' border-success' : ''
+                // eslint-disable-next-line no-nested-ternary
+                addressSelector
+                  ? // eslint-disable-next-line no-nested-ternary
+                    selectedAddress
+                    ? selectedAddress === item.id
+                      ? ' border-success'
+                      : ''
+                    : item.primary_address
+                    ? ' border-success'
+                    : ''
+                  : item.primary_address
+                  ? ' border-success'
+                  : ''
               }`}>
-              <Button
-                onClick={() => addressDelete(item.id)}
-                color="white"
-                className="position-absolute btn-delete-address">
-                <AiOutlineClose
-                  color="#7C4935"
-                  style={{width: '1em', height: '1em'}}
-                />
-              </Button>
+              {addressSelector ? null : (
+                <Button
+                  onClick={() => addressDelete(item.id)}
+                  color="white"
+                  className="position-absolute btn-delete-address">
+                  <AiOutlineClose
+                    color="#7C4935"
+                    style={{width: '1em', height: '1em'}}
+                  />
+                </Button>
+              )}
               <div className="my-2 h6">
                 <strong>{item.address_name}</strong>
               </div>
@@ -127,13 +147,23 @@ export default function AddressComponents() {
                   .concat(` ${item.city}`)
                   .concat(` ${item.postal_code}`)}
               </div>
-              <Button
-                onClick={() => modalEdit(item.id)}
-                outline
-                color="success"
-                className="btn-custom-no-outline my-2">
-                Change Address
-              </Button>
+              {addressSelector ? (
+                <Button
+                  onClick={() => selectAddress(item.id)}
+                  outline
+                  color="success"
+                  className="btn-custom-no-outline stretched-link my-2">
+                  Select Address
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => modalEdit(item.id)}
+                  outline
+                  color="success"
+                  className="btn-custom-no-outline my-2">
+                  Change Address
+                </Button>
+              )}
             </Col>
           ))
         ) : (

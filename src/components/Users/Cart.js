@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Row, Col, Container, Button, Input, Card, Spinner} from 'reactstrap';
 import {useSelector, useDispatch} from 'react-redux';
+import {useHistory} from 'react-router-dom';
 import NavBarClient from '../NavBarClient';
 import cartActions from '../../redux/actions/cart';
 import checkoutActions from '../../redux/actions/checkout';
@@ -12,6 +13,7 @@ import ModalConfirm from '../ModalConfirm';
 
 export default function Cart() {
   const {xs, md} = useWindowDimension();
+  const history = useHistory();
   const token = useSelector((state) => state.auth.token);
   const cart = useSelector((state) => state.cart);
   const dataCart = useSelector((state) => state.cart.dataCart);
@@ -257,7 +259,9 @@ export default function Cart() {
       itemdetails_id,
       quantity,
     };
-    dispatch(checkoutActions.getCheckout(token, data));
+    console.log(data);
+    dispatch(checkoutActions.addCheckoutData(data));
+    history.push('/checkout');
   };
 
   return (
@@ -356,8 +360,8 @@ export default function Cart() {
                         <div
                           className="position-relative rounded overflow-hidden"
                           style={{
-                            width: xs || md ? '2em' : '3em',
-                            height: xs || md ? '2em' : '3em',
+                            width: xs || md ? '3em' : '3.5em',
+                            height: xs || md ? '3em' : '3.5em',
                           }}>
                           <img
                             src={
@@ -369,7 +373,7 @@ export default function Cart() {
                             alt={`product_${item.id}`}
                           />
                         </div>
-                        <div className="ml-1 text-cart-wrapper align-items-start justify-content-center">
+                        <div className="ml-2 text-cart-wrapper align-items-start justify-content-center">
                           <div>
                             <text
                               style={{
@@ -385,6 +389,22 @@ export default function Cart() {
                                 width: '100%',
                               }}>
                               <strong>{item.name}</strong>
+                            </text>
+                            <text
+                              style={{
+                                fontSize: xs || md ? '0.5em' : '0.75em',
+                                overflow: 'hidden',
+                                lineHeight: '1.3em',
+                                height: '1.3em',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 1,
+                                WebkitBoxOrient: 'vertical',
+                                overflowWrap: 'break-word',
+                                textOverflow: 'ellipsis',
+                                width: '100%',
+                              }}
+                              className="text-muted">
+                              {item.color_name}
                             </text>
                             <text
                               style={{
@@ -459,7 +479,7 @@ export default function Cart() {
                         style={{
                           fontSize: xs || md ? '0.75em' : '1em',
                         }}>
-                        {currencyFormat(price[i])}
+                        <strong>{currencyFormat(price[i])}</strong>
                       </text>
                     </Col>
                   </div>

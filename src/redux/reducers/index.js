@@ -18,6 +18,7 @@ import deleteAddress from './deleteAddress';
 import deleteCart from './deleteCart';
 import getCheckout from './getCheckout';
 import checkoutData from './checkoutData';
+import deliveryFee from './deliveryFees';
 
 export default combineReducers({
   auth,
@@ -38,4 +39,5 @@ export default combineReducers({
   deleteCart,
   getCheckout,
   checkoutData,
+  deliveryFee,
 });

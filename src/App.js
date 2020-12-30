@@ -3,6 +3,8 @@ import React from 'react';
 import {BrowserRouter, Switch, Route} from 'react-router-dom';
 import {Provider, connect} from 'react-redux';
 import {Helmet} from 'react-helmet';
+import * as Yup from 'yup';
+import qs from 'qs';
 import PrivateRoute from './components/Auth/PrivateRoute';
 import PrivateRouteSeller from './components/Auth/PrivateRouteSeller';
 import Items from './components/Admin/Item';
@@ -10,14 +12,22 @@ import Home from './components/Home/Home';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
 import Profile from './components/Users/Profile';
-import NavBarClient from './components/NavBarClient';
+import Checkout from './components/Checkout/Checkout';
 import ItemDetails from './components/Items/ItemDetails';
 import Cart from './components/Users/Cart';
 import SearchPage from './components/Items/SearchItem';
 
 import authAction from './redux/actions/auth';
+import checkoutActions from './redux/actions/checkout';
 // Import store
 import store from './redux/store';
+
+const checkoutSchema = Yup.object().shape({
+  couriers: Yup.array().of(Yup.string()),
+  services: Yup.array().of(Yup.number()),
+  itemdetails_id: Yup.array().of(Yup.number()),
+  quantity: Yup.array().of(Yup.number()),
+});
 
 class App extends React.Component {
   componentDidMount() {
@@ -28,6 +38,18 @@ class App extends React.Component {
         id: localStorage.getItem('id'),
       };
       this.props.setToken(credential);
+    }
+    if (localStorage.getItem('checkoutData')) {
+      const data = localStorage.getItem('checkoutData');
+      const payload = qs.parse(data);
+      checkoutSchema
+        .validate(payload)
+        .then((value) => {
+          this.props.setCheckoutData(value);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   }
 
@@ -141,6 +163,15 @@ class App extends React.Component {
                 <Profile />
               </>
             </PrivateRoute>
+            <PrivateRoute path="/checkout">
+              <>
+                <Helmet>
+                  <meta charSet="utf-8" />
+                  <title>Checkout || Tuku!</title>
+                </Helmet>
+                <Checkout />
+              </>
+            </PrivateRoute>
           </Switch>
         </BrowserRouter>
       </Provider>
@@ -154,6 +185,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   setToken: authAction.setToken,
+  setCheckoutData: checkoutActions.setCheckoutData,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

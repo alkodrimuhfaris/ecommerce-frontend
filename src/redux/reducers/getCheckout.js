@@ -4,7 +4,7 @@ const initialState = {
   pending: false,
   message: '',
   bookingSummary: {},
-  bookingDetails: [],
+  bookingDetail: [],
 };
 
 export default (state = initialState, action) => {
