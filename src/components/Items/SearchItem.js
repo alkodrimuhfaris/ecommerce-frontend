@@ -39,7 +39,7 @@ export default function SearchItem() {
             ? searchData.map((product) => <ItemCard product={product} />)
             : null}
         </Row>
-      <Pagination />
+        <Pagination />
       </Container>
     </>
   );

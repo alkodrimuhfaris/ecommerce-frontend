@@ -68,8 +68,7 @@ export default function NavbarClient({inSearchPage = false}) {
     if (token) {
       dispatch(profileAction.getProfile(token));
     }
-    console.log(isSeller);
-  }, []);
+  }, [token]);
 
   const pushTo = (path, e) => {
     e.preventDefault();

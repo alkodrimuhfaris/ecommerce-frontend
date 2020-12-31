@@ -89,7 +89,7 @@ export default function Profile() {
       Icon: ({color}) => (
         <FaRegClipboard color={color} className="rounded-circle img-center" />
       ),
-      bgColor: {backgroundColor: '#4B5230'},
+      bgColor: {backgroundColor: '#F3456F'},
     },
     {
       name: 'Balance',
@@ -97,7 +97,7 @@ export default function Profile() {
       Icon: ({color}) => (
         <FaMoneyCheck color={color} className="rounded-circle img-center" />
       ),
-      bgColor: {backgroundColor: '#F3456F'},
+      bgColor: {backgroundColor: '#4B5230'},
     },
   ];
 
