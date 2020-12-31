@@ -23,8 +23,6 @@ import checkoutActions from './redux/actions/checkout';
 import store from './redux/store';
 
 const checkoutSchema = Yup.object().shape({
-  couriers: Yup.array().of(Yup.string()),
-  services: Yup.array().of(Yup.number()),
   itemdetails_id: Yup.array().of(Yup.number()),
   quantity: Yup.array().of(Yup.number()),
 });
@@ -159,6 +157,24 @@ class App extends React.Component {
                 <Helmet>
                   <meta charSet="utf-8" />
                   <title>Address || Tuku!</title>
+                </Helmet>
+                <Profile />
+              </>
+            </PrivateRoute>
+            <PrivateRoute path="/transaction">
+              <>
+                <Helmet>
+                  <meta charSet="utf-8" />
+                  <title>Transaction History || Tuku!</title>
+                </Helmet>
+                <Profile />
+              </>
+            </PrivateRoute>
+            <PrivateRoute path="/balance">
+              <>
+                <Helmet>
+                  <meta charSet="utf-8" />
+                  <title>Tuku! Balance || Tuku!</title>
                 </Helmet>
                 <Profile />
               </>

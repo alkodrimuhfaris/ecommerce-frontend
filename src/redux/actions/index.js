@@ -12,6 +12,7 @@ import passwordActions from './password';
 import profileActions from './profile';
 import searchQueryActions from './searchQuery';
 import signupActions from './signup';
+import transactionActions from './transaction';
 
 export default {
   addressActions,
@@ -28,4 +29,5 @@ export default {
   profileActions,
   searchQueryActions,
   signupActions,
+  transactionActions,
 };

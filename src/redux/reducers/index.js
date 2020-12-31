@@ -19,6 +19,13 @@ import deleteCart from './deleteCart';
 import getCheckout from './getCheckout';
 import checkoutData from './checkoutData';
 import deliveryFee from './deliveryFees';
+import processPayment from './processPayment';
+import cartToCheckout from './cartToCheckout';
+import getCategories from './getCategories';
+import allTransaction from './allTransaction';
+import detailTransaction from './detailTransaction';
+import payTransaction from './payTransaction';
+import topUp from './topUp';
 
 export default combineReducers({
   auth,
@@ -40,4 +47,11 @@ export default combineReducers({
   getCheckout,
   checkoutData,
   deliveryFee,
+  processPayment,
+  cartToCheckout,
+  getCategories,
+  allTransaction,
+  detailTransaction,
+  payTransaction,
+  topUp,
 });

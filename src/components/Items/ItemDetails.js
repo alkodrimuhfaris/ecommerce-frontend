@@ -5,9 +5,8 @@ import {useSelector, useDispatch} from 'react-redux';
 import {FaStar} from 'react-icons/fa';
 import {Helmet} from 'react-helmet';
 import NavBarClient from '../NavBarClient';
-import itemActions from '../../redux/actions/items';
+import actions from '../../redux/actions/index';
 import StarRating from '../StarRating';
-import cartActions from '../../redux/actions/cart';
 import currencyFormat from '../../helpers/currencyFormat';
 import ModalConfirm from '../ModalConfirm';
 import ModalLoading from '../ModalLoading';
@@ -15,6 +14,7 @@ import ItemCard from '../ItemCard';
 import '../../Assets/style/ItemDetail.css';
 
 export default function ItemDetails() {
+  const {itemsActions: itemActions, cartActions, checkoutActions} = actions;
   const {id} = useParams();
   const product = useSelector((state) => state.items.detailItem);
   const colorProduct = useSelector((state) => state.items.detailColorItem);
@@ -68,10 +68,10 @@ export default function ItemDetails() {
     );
   }, [product]);
 
-  const pushTo = (path, e) => {
-    e.preventDefault();
-    history.push(path);
-  };
+  // const pushTo = (path, e) => {
+  //   e.preventDefault();
+  //   history.push(path);
+  // };
 
   const addBagHandler = (e) => {
     e.preventDefault();
@@ -86,6 +86,19 @@ export default function ItemDetails() {
       setAddBagAlert(true);
     }
   }, [cart.postCartPending]);
+
+  const checkout = () => {
+    dispatch(checkoutActions.removeCheckoutData());
+    dispatch(
+      checkoutActions.addCheckoutData({
+        couriers: [''],
+        services: [0],
+        itemdetails_id: [colorSelected],
+        quantity: [selectQty],
+      }),
+    );
+    history.push('/checkout');
+  };
 
   return (
     <>
@@ -250,8 +263,7 @@ export default function ItemDetails() {
                   className="w-100 rounded-pill"
                   style={{fontSize: '0.75em'}}
                   // onClick={(e) => pushTo('/chat', e)}
-                  disabled
-                >
+                  disabled>
                   Chat
                 </Button>
               </Col>
@@ -296,9 +308,7 @@ export default function ItemDetails() {
                   style={{fontSize: '0.75em'}}
                   onMouseEnter={toggle}
                   onMouseLeave={toggle}
-                  onClick={
-                    colorSelected ? (e) => pushTo('/checkout', e) : null
-                  }>
+                  onClick={colorSelected ? () => checkout() : null}>
                   Buy Now
                 </Button>
               </Col>

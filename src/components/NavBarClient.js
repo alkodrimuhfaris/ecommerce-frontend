@@ -15,6 +15,7 @@ import {
   InputGroupAddon,
   Label,
   FormGroup,
+  Spinner,
 } from 'reactstrap';
 import Select from 'react-select';
 import {BrowserRouter as Router, useHistory} from 'react-router-dom';
@@ -33,9 +34,10 @@ import defaultProfile from '../Assets/images/profile.jpg';
 import searchAction from '../redux/actions/searchQuery';
 import useWindowDimension from './Helpers/useWindowDimension';
 import '../Assets/style/NavBar.css';
+import currencyFormat from '../helpers/currencyFormat';
 
-export default function NavbarClient({inSearchPage = false, ...props}) {
-  const {width, md} = useWindowDimension();
+export default function NavbarClient({inSearchPage = false}) {
+  const {width, md, xs} = useWindowDimension();
   const [openNavbar, setOpenNavbar] = useState(false);
   const [searchVal, setSearchVal] = useState('');
   const [sort, setSort] = useState({
@@ -50,6 +52,9 @@ export default function NavbarClient({inSearchPage = false, ...props}) {
   const isSeller = useSelector((state) => state.auth.isSeller);
   const isLogin = useSelector((state) => state.auth.isLogin);
   const profile = useSelector((state) => state.profile.userData);
+  const getProfilePending = useSelector(
+    (state) => state.profile.getProfilePending,
+  );
   const dispatch = useDispatch();
   const history = useHistory();
   const filterRef = React.useRef(null);
@@ -188,7 +193,7 @@ export default function NavbarClient({inSearchPage = false, ...props}) {
                         className="mb-4"
                         value={sort}
                         options={sortOpt}
-                        onChange={(e) => setSort({sort: e})}
+                        onChange={(e) => setSort(e)}
                       />
                       <FormGroup>
                         <Label for="filterDateFrom">From Date</Label>
@@ -197,7 +202,7 @@ export default function NavbarClient({inSearchPage = false, ...props}) {
                           name="dateFromVal"
                           id="filterDateFrom"
                           value={after}
-                          onChange={(e) => setAfter({after: e.target.value})}
+                          onChange={(e) => setAfter(e.target.value)}
                         />
                       </FormGroup>
                       <FormGroup>
@@ -207,7 +212,7 @@ export default function NavbarClient({inSearchPage = false, ...props}) {
                           name="dateToVal"
                           id="filterDateTo"
                           value={before}
-                          onChange={(e) => setBefore({before: e.target.value})}
+                          onChange={(e) => setBefore(e.target.value)}
                         />
                         <div className="d-flex justify-content-between">
                           <Button
@@ -303,6 +308,36 @@ export default function NavbarClient({inSearchPage = false, ...props}) {
                           </text>
                         ) : null}
                         <Popover isOpen={profilePopOver}>
+                          <div
+                            className="container"
+                            style={{maxWidth: '200px'}}>
+                            {getProfilePending ? (
+                              <div className="py-3 d-flex align-items-center justify-content-center">
+                                <Spinner color="success" size="sm" />
+                              </div>
+                            ) : (
+                              <div className="my-3 d-flex flex-column align-items-center justify-content-center">
+                                <div className="d-flex w-100 align-items-center justify-content-start">
+                                  <text
+                                    style={{
+                                      fontSize: xs || md ? '0.5em' : '0.75em',
+                                    }}>
+                                    <strong>Balance: </strong>
+                                  </text>
+                                </div>
+                                <div className="d-flex w-100 align-items-center justify-content-start">
+                                  <text
+                                    style={{
+                                      fontSize: xs || md ? '0.5em' : '0.75em',
+                                    }}>
+                                    {profile.balance
+                                      ? currencyFormat(profile.balance)
+                                      : currencyFormat(0)}
+                                  </text>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                           <Button
                             block
                             outline
@@ -310,8 +345,6 @@ export default function NavbarClient({inSearchPage = false, ...props}) {
                             style={{
                               border: 0,
                               borderRadius: 0,
-                              borderTopLeftRadius: '0.5em',
-                              borderTopRightRadius: '0.5em',
                             }}
                             onClick={(e) => pushTo('/profile', e)}>
                             Profile

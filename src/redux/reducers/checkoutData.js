@@ -11,14 +11,17 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case 'ADD_CHECKOUT': {
       const {payload} = action;
-      console.log(payload);
-      localStorage.setItem('checkoutData', qs.stringify(payload));
-      return {
-        ...state,
-        couriers: action.payload.couriers,
-        services: action.payload.services,
+      const data = {
         itemdetails_id: action.payload.itemdetails_id,
         quantity: action.payload.quantity,
+      };
+      localStorage.setItem('checkoutData', qs.stringify(data));
+      return {
+        ...state,
+        couriers: payload.couriers,
+        services: payload.services,
+        itemdetails_id: payload.itemdetails_id,
+        quantity: payload.quantity,
       };
     }
     case 'REMOVE_CHECKOUT_DATA': {

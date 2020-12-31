@@ -10,4 +10,10 @@ export default {
     type: 'GET_POPULAR',
     payload: services().get(`/public/popular?${qs.stringify({page, limit})}`),
   }),
+  getCategories: (page = 1, limit = 4) => ({
+    type: 'GET_CATEGORIES',
+    payload: services().get(
+      `/public/categories?${qs.stringify({page, limit})}`,
+    ),
+  }),
 };

@@ -19,6 +19,10 @@ export default {
       `/checkout/deliveryfee?${qs.stringify({dataBooking, address_id})}`,
     ),
   }),
+  processPayment: (token, data = {}) => ({
+    type: 'PROCESS_PAYMENT',
+    payload: services(token).post('/checkout/commit', data),
+  }),
   getSellerArray: (token, itemdetails_id = []) => ({
     type: 'GET_SELLER_ARR',
     payload: services(token).post(

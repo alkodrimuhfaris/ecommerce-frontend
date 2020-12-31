@@ -27,6 +27,7 @@ export default function Cart() {
   const deleteCart = useSelector((state) => state.deleteCart);
   const [propsNotif, setPropsNotif] = useState({});
   const [openNotif, setOpenNotif] = useState(false);
+  const isInitialMount = React.useRef(true);
 
   useEffect(() => {
     dispatch(cartActions.getCart(token));
@@ -106,35 +107,40 @@ export default function Cart() {
 
   // notif for delete cart
   useEffect(() => {
-    if (deleteCart.success) {
-      setPropsNotif({
-        title: 'Success',
-        content: 'Success delete selected cart!',
-        confirm: () => {
-          dispatch(cartActions.getCart(token));
-          setOpenNotif(false);
-        },
-        close: () => {
-          dispatch(cartActions.getCart(token));
-          setOpenNotif(false);
-        },
-      });
-      setOpenNotif(true);
-    }
-    if (deleteCart.error) {
-      setPropsNotif({
-        title: 'Error',
-        content: 'Error delete selected cart!',
-        confirm: () => {
-          dispatch(cartActions.getCart(token));
-          setOpenNotif(false);
-        },
-        close: () => {
-          dispatch(cartActions.getCart(token));
-          setOpenNotif(false);
-        },
-      });
-      setOpenNotif(true);
+    if (isInitialMount.current) {
+      dispatch(cartActions.clearCartCheckout());
+      isInitialMount.current = false;
+    } else {
+      if (deleteCart.success) {
+        setPropsNotif({
+          title: 'Success',
+          content: 'Success delete selected cart!',
+          confirm: () => {
+            dispatch(cartActions.getCart(token));
+            setOpenNotif(false);
+          },
+          close: () => {
+            dispatch(cartActions.getCart(token));
+            setOpenNotif(false);
+          },
+        });
+        setOpenNotif(true);
+      }
+      if (deleteCart.error) {
+        setPropsNotif({
+          title: 'Error',
+          content: 'Error delete selected cart!',
+          confirm: () => {
+            dispatch(cartActions.getCart(token));
+            setOpenNotif(false);
+          },
+          close: () => {
+            dispatch(cartActions.getCart(token));
+            setOpenNotif(false);
+          },
+        });
+        setOpenNotif(true);
+      }
     }
   }, [deleteCart.pending]);
 
@@ -259,7 +265,17 @@ export default function Cart() {
       itemdetails_id,
       quantity,
     };
+    let newDelete = selectedArr.filter((item) => {
+      item = item.selected;
+      return item;
+    });
+    newDelete = newDelete.map((item) => {
+      const deleteItem = {...item};
+      delete deleteItem.selected;
+      return deleteItem;
+    });
     console.log(data);
+    dispatch(cartActions.cartToCheckout(newDelete));
     dispatch(checkoutActions.addCheckoutData(data));
     history.push('/checkout');
   };

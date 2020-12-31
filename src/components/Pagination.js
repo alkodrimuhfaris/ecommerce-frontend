@@ -4,47 +4,40 @@ import Select from 'react-select';
 import qs from 'qs';
 import {useSelector, useDispatch} from 'react-redux';
 import '../Assets/style/Pagination.css';
-import {useHistory} from 'react-router-dom';
-import itemsAction from '../redux/actions/items';
-import adminAction from '../redux/actions/admin';
-import queryAction from '../redux/actions/searchQuery';
+import {useHistory, useLocation} from 'react-router-dom';
+import actions from '../redux/actions/index';
 import useWindowDimension from './Helpers/useWindowDimension';
 
 export default function PaginationHook({adminPage = false}) {
   const {md} = useWindowDimension();
   const dispatch = useDispatch();
+  const {
+    itemsActions: itemsAction,
+    adminActions: adminAction,
+    searchQueryActions: queryAction,
+    transactionActions: transactionAction,
+  } = actions;
   const history = useHistory();
   const isSeller = useSelector((state) => state.auth.isSeller);
   const queryAdmin = useSelector((state) => state.admin.query);
   const querySearch = useSelector((state) => state.searchQuery.query);
   const pageInfoAdmin = useSelector((state) => state.admin.pageInfo);
-  const token = useSelector((state) => state.auth.token);
+  const pageInfoTransaction = useSelector(
+    (state) => state.allTransaction.pageInfo,
+  );
   const pageInfoSearch = useSelector((state) => state.items.searchPageInfo);
+  const token = useSelector((state) => state.auth.token);
   const [pageInfo, setPageInfo] = React.useState({});
   const [limit, setLimit] = React.useState(10);
   const [extension, setExtension] = React.useState('/public/products?');
   const [optionPage, setOptionPage] = React.useState([]);
-  const [query, setQuery] = React.useState({
-    page: 1,
-    limit: 10,
-  });
-
-  const searchPage = (queryPage) => {
-    if (adminPage) {
-      dispatch(adminAction.addQuery(queryPage));
-    } else {
-      dispatch(queryAction.addQuery(queryPage));
-    }
-  };
-
-  const dispatchSearch = () => {
-    if (adminPage) {
-      dispatch(adminAction.getAdminItems(token, query));
-    } else {
-      dispatch(itemsAction.searchItem(query));
-    }
-    history.push({search: qs.stringify(query)});
-  };
+  const [query, setQuery] = React.useState(
+    adminPage ? queryAdmin : querySearch,
+  );
+  const thisPath = useLocation().pathname;
+  const isInitialMount1 = React.useRef(true);
+  const isInitialMount2 = React.useRef(true);
+  // const isInitialMount3 = React.useRef(true);
 
   React.useEffect(() => {
     if (adminPage) {
@@ -54,27 +47,108 @@ export default function PaginationHook({adminPage = false}) {
     }
   }, [queryAdmin, querySearch]);
 
-  React.useEffect(() => {
-    console.log(adminPage);
-    const ext = adminPage ? '/items?' : '/public/products?';
-    setExtension(ext);
-  }, []);
+  const searchPage = (queryPage) => {
+    switch (thisPath) {
+      case '/admin': {
+        dispatch(adminAction.addQuery(queryPage));
+        break;
+      }
+      case '/search': {
+        dispatch(queryAction.addQuery(queryPage));
+        break;
+      }
+      case '/transaction': {
+        dispatch(queryAction.addQuery(queryPage));
+        break;
+      }
+      default: {
+        dispatch(queryAction.addQuery(queryPage));
+        break;
+      }
+    }
+  };
+
+  const dispatchSearch = () => {
+    switch (thisPath) {
+      case '/admin': {
+        dispatch(adminAction.getAdminItems(token, query));
+        break;
+      }
+      case '/search': {
+        dispatch(itemsAction.searchItem(query));
+        break;
+      }
+      case '/transaction': {
+        console.log('dispatch transaction action');
+        dispatch(transactionAction.getAllTransaction(token, query));
+        break;
+      }
+      default: {
+        dispatch(itemsAction.searchItem(query));
+        break;
+      }
+    }
+    history.push({search: qs.stringify(query)});
+  };
 
   React.useEffect(() => {
-    dispatchSearch();
+    if (isInitialMount1.current) {
+      isInitialMount1.current = false;
+      console.log(adminPage);
+      let ext = '';
+      switch (thisPath) {
+        case '/admin': {
+          ext = '/items?';
+          break;
+        }
+        case '/search': {
+          ext = '/public/products?';
+          break;
+        }
+        case '/transaction': {
+          ext = '/transaction/all?';
+          break;
+        }
+        default: {
+          ext = '/public/products?';
+          break;
+        }
+      }
+      setExtension(ext);
+    } else {
+      dispatchSearch();
+    }
     return () => dispatch(queryAction.clearQuery());
   }, []);
 
   React.useEffect(() => {
-    if (adminPage && isSeller) {
-      setPageInfo(pageInfoAdmin);
-    } else {
-      setPageInfo(pageInfoSearch);
+    switch (thisPath) {
+      case '/admin': {
+        setPageInfo(pageInfoAdmin);
+        break;
+      }
+      case '/search': {
+        setPageInfo(pageInfoSearch);
+        break;
+      }
+      case '/transaction': {
+        console.log(pageInfoTransaction);
+        setPageInfo(pageInfoTransaction);
+        break;
+      }
+      default: {
+        setPageInfo(pageInfoAdmin);
+        break;
+      }
     }
-  }, [pageInfoAdmin, pageInfoSearch, isSeller]);
+  }, [pageInfoAdmin, pageInfoSearch, pageInfoTransaction, isSeller]);
 
   React.useEffect(() => {
-    dispatchSearch();
+    if (isInitialMount2.current) {
+      isInitialMount2.current = false;
+    } else {
+      dispatchSearch();
+    }
   }, [query]);
 
   React.useEffect(() => {
@@ -330,7 +404,7 @@ export default function PaginationHook({adminPage = false}) {
           </text>
         </div>
       ) : null}
-      <div className="my-3 row justify-content-center">
+      <div className="my-3 row no-gutters justify-content-center">
         <div
           className={`col-12 col-md-5 d-flex justify-content-${
             md ? 'center' : 'end'

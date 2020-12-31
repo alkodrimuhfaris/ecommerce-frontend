@@ -20,4 +20,14 @@ export default {
       `/mycart/bulk?${qs.stringify({deleteArr})}`,
     ),
   }),
+  cartToCheckout: (payload = []) => ({
+    type: 'CART_TO_CHECKOUT',
+    payload,
+  }),
+  clearCartCheckout: () => ({
+    type: 'CLEAR_CART_CHECKOUT',
+  }),
+  celarStateDelete: () => ({
+    type: 'RESET_STATE_DELETE',
+  }),
 };

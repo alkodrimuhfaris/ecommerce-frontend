@@ -1,47 +1,45 @@
 const initialState = {
-  success: false,
   pending: false,
   error: false,
+  success: false,
   message: '',
+  categories: [],
+  pageInfo: {},
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case 'DELETE_BULK_CART_PENDING': {
+    default: {
+      return state;
+    }
+    case 'GET_CATEGORIES_PENDING': {
       return {
         ...state,
         pending: true,
         error: false,
         success: false,
-        message: 'Deleting cart..',
+        message: 'Getting categories...',
       };
     }
-    case 'DELETE_BULK_CART_REJECTED': {
+    case 'GET_CATEGORIES_REJECTED': {
       return {
         ...state,
         pending: false,
         error: true,
         success: false,
-        message: 'There is an error at deleting cart',
+        message: 'Error get categories',
       };
     }
-    case 'DELETE_BULK_CART_FULFILLED': {
+    case 'GET_CATEGORIES_FULFILLED': {
       return {
         ...state,
         pending: false,
         error: false,
         success: true,
-        message: 'Delete data cart successfully',
+        message: 'Success get categories',
+        categories: action.payload.data.results,
+        pageInfo: action.payload.data.pageInfo,
       };
-    }
-    case 'RESET_STATE_DELETE': {
-      return {
-        ...state,
-        ...initialState,
-      };
-    }
-    default: {
-      return state;
     }
   }
 };

@@ -34,13 +34,13 @@ export default function SearchItem() {
       <Container>
         <ModalLoading modalOpen={searchIsPending} />
         <h3 className="mt-3 mb-1">Search result for: {search}</h3>
-        <Row className="justify-content-md-center mt-3 mb-5">
+        <Row className="justify-content-md-center no-gutters mt-3 mb-5">
           {searchData.length
             ? searchData.map((product) => <ItemCard product={product} />)
             : null}
         </Row>
-      </Container>
       <Pagination />
+      </Container>
     </>
   );
 }

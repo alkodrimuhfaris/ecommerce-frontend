@@ -2,13 +2,15 @@ import React, {useEffect, useState} from 'react';
 import {Container, Col, Row, Media, Nav, NavItem} from 'reactstrap';
 import {Link, useHistory, useLocation} from 'react-router-dom';
 import {useSelector, useDispatch} from 'react-redux';
-import {FaPencilAlt, FaRegClipboard} from 'react-icons/fa';
+import {FaPencilAlt, FaRegClipboard, FaMoneyCheck} from 'react-icons/fa';
 import {FiUser} from 'react-icons/fi';
 import {BiMap} from 'react-icons/bi';
 import profileAction from '../../redux/actions/profile';
 import NavBarClient from '../NavBarClient';
 import ProfileComponent from './ProfileComponent';
 import AddressComponent from './AddressComponent';
+import TransactionComponent from './TransactionComponent';
+import Balance from './Balance';
 import useWindowDimension from '../Helpers/useWindowDimension';
 import placeholder from '../../Assets/images/profile.jpg';
 
@@ -34,8 +36,12 @@ export default function Profile() {
         setChoosenPath(1);
         break;
       }
-      case '/orders': {
+      case '/transaction': {
         setChoosenPath(2);
+        break;
+      }
+      case '/balance': {
+        setChoosenPath(3);
         break;
       }
       default: {
@@ -79,9 +85,17 @@ export default function Profile() {
     },
     {
       name: 'My Orders',
-      path: '/profile',
+      path: '/transaction',
       Icon: ({color}) => (
         <FaRegClipboard color={color} className="rounded-circle img-center" />
+      ),
+      bgColor: {backgroundColor: '#4B5230'},
+    },
+    {
+      name: 'Balance',
+      path: '/balance',
+      Icon: ({color}) => (
+        <FaMoneyCheck color={color} className="rounded-circle img-center" />
       ),
       bgColor: {backgroundColor: '#F3456F'},
     },
@@ -94,6 +108,12 @@ export default function Profile() {
       }
       case '/address': {
         return <AddressComponent className={className} />;
+      }
+      case '/transaction': {
+        return <TransactionComponent className={className} />;
+      }
+      case '/balance': {
+        return <Balance className={className} />;
       }
       default: {
         return <ProfileComponent className={className} />;
@@ -110,6 +130,12 @@ export default function Profile() {
         case '/address': {
           return 'Choose Another Address';
         }
+        case '/transaction': {
+          return 'History of your transaction';
+        }
+        case '/balance': {
+          return 'Tuku Balance!';
+        }
         default: {
           return 'My Profile';
         }
@@ -122,6 +148,12 @@ export default function Profile() {
         }
         case '/address': {
           return 'Manage your shipping address';
+        }
+        case '/transaction': {
+          return 'List of all your transaction';
+        }
+        case '/balance': {
+          return 'Top up your balance here';
         }
         default: {
           return 'Manage your profile information';
@@ -185,7 +217,7 @@ export default function Profile() {
                 : {backgroundColor: 'white'};
 
               return (
-                <NavItem className="col-4 col-md-12">
+                <NavItem className="col-3 col-md-12">
                   <Media className="align-items-center my-2 w-100">
                     <Link
                       onClick={(e) => goToProfile(e, index, path)}
