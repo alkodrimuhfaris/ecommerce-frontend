@@ -39,8 +39,4 @@ TUKU is an e-commerce web that serve you simple, intuitive and great user experi
 
 
 <h4>Web Mobile</h4>
-<img src='https://drive.google.com/uc?id=1wY9YkLhovYSNbh0UQ1Q570knlfMMRMMg' width='25%'><img src='https://drive.google.com/uc?id=1wb7Q2aYpQEJg7_LVLdgmddHFH6n7M6c4' width='25%'>
-
-<img src='https://drive.google.com/uc?id=1wTpe9h6doMcVP5xwM9sUVIq_b8WwjXN0' width='25%'><img src='https://drive.google.com/uc?id=1wAkIG266b3iu-so9b4zUwK0HC6y0a-tp' width='25%'>
-
-<img src='https://drive.google.com/uc?id=1wF7tMwc03-c8I5yC0IYlI4F5WRDzoDJn' width='25%'>
+<img src='https://drive.google.com/uc?id=1wY9YkLhovYSNbh0UQ1Q570knlfMMRMMg' width='25%'> <img src='https://drive.google.com/uc?id=1wb7Q2aYpQEJg7_LVLdgmddHFH6n7M6c4' width='25%'> <img src='https://drive.google.com/uc?id=1wTpe9h6doMcVP5xwM9sUVIq_b8WwjXN0' width='25%'> <img src='https://drive.google.com/uc?id=1wAkIG266b3iu-so9b4zUwK0HC6y0a-tp' width='25%'> <img src='https://drive.google.com/uc?id=1wF7tMwc03-c8I5yC0IYlI4F5WRDzoDJn' width='25%'>
