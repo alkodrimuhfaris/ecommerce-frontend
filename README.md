@@ -27,7 +27,7 @@ TUKU is an e-commerce web that serve you simple, intuitive and great user experi
 <h4>Web Client</h4>
 <img src='https://drive.google.com/uc?id=1GNx7PlZfEqqUdwh7F0ASuCfoq1GJJRW3' width='25%'> <img src='https://drive.google.com/uc?id=1K-0UgxmpfMNS1wSU5P5te7_u9QoP4fnB' width='25%'>
 <img src='https://drive.google.com/uc?id=1eNbEQUXqYy66OkPsQ8GmGnKl5m99zO4l' width='25%'> <img src='https://drive.google.com/uc?id=10Rsar3dRSNaMCR8jzl_vPUkjQhyszlni' width='25%'>
-<img src='https://drive.google.com/uc?id=1vPif7rNJMk3r7Ho5dlk5xsKdmIvBi5g2' width='25%'>
+<img src='https://drive.google.com/uc?id=13Oe16afdVQ6AB6Pl_nVOENgf8xEBFEje' width='25%'>
 
 
 <h4>Web Admin</h4>
